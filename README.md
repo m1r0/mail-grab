@@ -5,4 +5,4 @@
 
 #### About
 
-This plugin allows you to catch and store all emails sent from the WordPress. You can also prevent the sending entirely.
+This plugin allows you to catch and store all emails sent from WordPress. You can also prevent the sending entirely.

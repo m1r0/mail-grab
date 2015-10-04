@@ -139,7 +139,7 @@ class Email_Catcher {
 
 		// Post edit screen scripts
 		if ( $hook === 'post.php' ) {
-			wp_enqueue_script( 'ec-functions', $this->plugin_url( 'js/functions.js' ), 'jquery' );
+			wp_enqueue_script( 'ec-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ) );
 			wp_enqueue_style( 'ec-style', $this->plugin_url( 'css/style.css' ) );
 		}
 	}

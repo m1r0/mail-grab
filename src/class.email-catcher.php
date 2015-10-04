@@ -295,8 +295,8 @@ class Email_Catcher {
 
 		global $post_status;
 
-		$senders    = $this->get_meta_values( 'ec_email_sender',     null, $post_status );
-		$recipients = $this->get_meta_values( 'ec_email_recipients', null, $post_status );
+		$senders    = $this->get_meta_values( 'ec_email_sender',     self::POST_TYPE, $post_status );
+		$recipients = $this->get_meta_values( 'ec_email_recipients', self::POST_TYPE, $post_status );
 
 		$filters = array(
 			array(

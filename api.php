@@ -1,6 +1,6 @@
 <?php
 
-// Load WP
+// Load WordPress
 require( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/wp-load.php' );
 
 $user     = wp_get_current_user();

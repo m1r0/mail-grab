@@ -16,7 +16,7 @@ class Email_Catcher {
 	const POST_TYPE = 'ec_email';
 
 	/**
-	 * Settings API
+	 * Settings API.
 	 *
 	 * @var EC_Settings_API
 	 */
@@ -68,6 +68,7 @@ class Email_Catcher {
 		# Filters
 		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'set_columns'),             10,  1 );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( $this, 'set_sortable_columns'),    10,  1 );
+		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'set_action_links'),        10,  1 );
 	}
 
 	/**
@@ -428,6 +429,18 @@ class Email_Catcher {
 		$columns[ 'recipients' ] = 'ec_email_recipients';
 
 		return $columns;
+	}
+
+	/**
+	 * Set the plugin action links.
+	 *
+	 * @param  array $links
+	 * @return array $links
+	 */
+	public function set_action_links( $links ) {
+		$links[ 'settings' ] = '<a href="' . admin_url( 'edit.php?post_type=' . self::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings' ) . '</a>';
+
+		return $links;
 	}
 
 	/**

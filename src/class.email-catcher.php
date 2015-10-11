@@ -178,7 +178,7 @@ class Email_Catcher {
 				'delete_posts'       => 'manage_options',
 				'publish_posts'      => 'manage_options',
 				'read_private_posts' => 'manage_options',
-				'create_posts'       => false, # disable create new post screen
+				'create_posts'       => is_multisite() ? 'do_not_allow' : false, # disable create new post screen
 			),
 			'menu_icon'       => 'dashicons-email-alt',
 			'labels'          => $labels,

@@ -200,7 +200,7 @@ function ec_email_is_html( $post ) {
 	$content_type = get_post_meta( $post->ID, 'ec_email_content_type', true );
 	$is_html      = $content_type === 'text/html';
 
-	return $is_html;
+	return  apply_filters( 'ec_email_is_html', $is_html, $post, $content_type );
 }
 
 endif; // ec_email_is_html

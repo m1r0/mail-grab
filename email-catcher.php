@@ -13,8 +13,8 @@
 defined( 'ABSPATH' ) or exit;
 
 // Constants
-define('EC_PLUGIN_DIR',      plugin_dir_path( __FILE__ ) );
-define('EC_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'EC_PLUGIN_DIR',      plugin_dir_path( __FILE__ ) );
+define( 'EC_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Includes
 require_once( EC_PLUGIN_DIR . 'src/class.email-catcher.php' );

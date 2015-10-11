@@ -249,7 +249,18 @@ class Email_Catcher {
 				array(
 					'name'    => 'prevent_email',
 					'label'   => __( 'Prevent email sending', 'email-catcher' ),
-					'desc'    => __( 'Prevent emails from being sent', 'email-catcher' ),
+					'desc'    => __( 'Prevent emails from being sent.', 'email-catcher' ),
+					'type'    => 'select',
+					'default' => 'no',
+					'options' => array(
+						'yes' => 'Yes',
+						'no'  => 'No'
+					)
+				),
+				array(
+					'name'    => 'uninstall',
+					'label'   => __( 'Uninstall', 'email-catcher' ),
+					'desc'    => __( 'Remove all stored emails and settings when the plugin is removed.', 'email-catcher' ),
 					'type'    => 'select',
 					'default' => 'no',
 					'options' => array(
@@ -390,7 +401,7 @@ class Email_Catcher {
 	/**
 	 * Set the post type columns.
 	 *
-	 * @param  array $
+	 * @param  array $columns
 	 * @return array $columns
 	 */
 	public function set_columns( $columns ) {
@@ -490,6 +501,36 @@ class Email_Catcher {
 		}
 
 		return $wpdb->get_col( $query );
+	}
+
+	/**
+	 * Removes all traces of the plugin if the "uninstall" option is enabled.
+	 *
+	 * @see    register_uninstall_hook() in the main file
+	 * @return void
+	 */
+	public static function uninstall() {
+		$email_catcher = email_catcher();
+		$uninstall     = $email_catcher->settings_api->get_option( 'uninstall' );
+
+		// Check if uninstall is enabled and the user permissions
+		if ( $uninstall !== 'yes' || !current_user_can( 'activate_plugins' ) ) {
+			return;
+		}
+
+		// Remove all stored email posts
+		$emails = get_posts( array(
+			'post_type'      => self::POST_TYPE,
+			'post_status'    => array( 'any', 'trash', 'auto-draft' ),
+			'posts_per_page' => -1,
+		) );
+
+		foreach ( $emails as $email ) {
+			wp_delete_post( $email->ID, true );
+		}
+
+		// Remove plugin options
+		delete_site_option( 'ec_settings' );
 	}
 
 } // Email_Catcher

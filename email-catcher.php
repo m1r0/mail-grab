@@ -17,5 +17,8 @@ require_once( dirname( __FILE__ ) . '/src/class.email-catcher.php' );
 require_once( dirname( __FILE__ ) . '/src/class.ec-settings-api.php' );
 require_once( dirname( __FILE__ ) . '/src/functions.php' );
 
-// Initialize
-email_catcher();
+// Plugin hooks
+register_uninstall_hook( __FILE__, array( 'Email_Catcher', 'uninstall' ) );
+
+// Initialization
+add_action( 'plugins_loaded', 'email_catcher' );

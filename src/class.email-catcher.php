@@ -52,23 +52,35 @@ class Email_Catcher {
 		$this->settings_api = new EC_Settings_API();
 
 		# Actions
-		add_action( 'phpmailer_init',                                       array( $this, 'store_email' ),            900, 1 );
-		add_action( 'phpmailer_init',                                       array( $this, 'prevent_email' ),          910, 1 );
+		add_action( 'phpmailer_init',                                       array( $this, 'catch_mailer' ),         1000, 1 );
+		add_action( 'ec_store_email',                                       array( $this, 'store_email' ),            10, 1 );
+		add_action( 'ec_prevent_email',                                     array( $this, 'prevent_email' ),          10, 1 );
 
-		add_action( 'admin_enqueue_scripts',                                array( $this, 'enqueue_scripts' ),        10,  1 );
-		add_action( 'init',                                                 array( $this, 'register_post_type' ),     10,  0 );
-		add_action( 'admin_menu',                                           array( $this, 'register_settings_menu' ), 10,  0 );
-		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10,  0 );
-		add_action( 'add_meta_boxes_' . self::POST_TYPE,                    array( $this, 'register_meta_boxes' ),    10,  0 );
+		add_action( 'admin_enqueue_scripts',                                array( $this, 'enqueue_scripts' ),        10, 1 );
+		add_action( 'init',                                                 array( $this, 'register_post_type' ),     10, 0 );
+		add_action( 'admin_menu',                                           array( $this, 'register_settings_menu' ), 10, 0 );
+		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
+		add_action( 'add_meta_boxes_' . self::POST_TYPE,                    array( $this, 'register_meta_boxes' ),    10, 1 );
 
-		add_action( 'restrict_manage_posts',                                array( $this, 'column_filters' ),         10,  0 );
-		add_action( 'pre_get_posts',                                        array( $this, 'column_query' ),           10,  1 );
-		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column',   array( $this, 'column_output' ),          10,  2 );
+		add_action( 'restrict_manage_posts',                                array( $this, 'column_filters' ),         10, 0 );
+		add_action( 'pre_get_posts',                                        array( $this, 'column_query' ),           10, 1 );
+		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column',   array( $this, 'column_output' ),          10, 2 );
 
 		# Filters
-		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'set_columns'),             10,  1 );
-		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( $this, 'set_sortable_columns'),    10,  1 );
-		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'set_action_links'),        10,  1 );
+		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'set_columns'),             10, 1 );
+		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( $this, 'set_sortable_columns'),    10, 1 );
+		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'set_action_links'),        10, 1 );
+	}
+
+	public function catch_mailer( PHPMailer &$phpmailer ) {
+		// Store the email
+		do_action( 'ec_store_email', $phpmailer );
+
+		// Prevent the email sending if the option is enabled
+		$prevent_email = $this->settings_api->get_option( 'prevent_email' ) === 'yes';
+		if ( $prevent_email ) {
+			do_action_ref_array( 'ec_prevent_email', array( &$phpmailer) );
+		}
 	}
 
 	/**
@@ -78,15 +90,8 @@ class Email_Catcher {
 	 * @return void
 	 */
 	public function store_email( PHPMailer $phpmailer ) {
-		$sender       = $phpmailer->From;
-		$recipients   = $phpmailer->getAllRecipientAddresses();
-		$subject      = $phpmailer->Subject;
-		$body         = $phpmailer->Body;
-		$content_type = $phpmailer->ContentType;
-
 		$post_id = wp_insert_post( array(
 			'post_type'   => self::POST_TYPE,
-			'post_title'  => $subject,
 			'post_status' => 'publish',
 		) );
 
@@ -94,30 +99,33 @@ class Email_Catcher {
 			return false;
 		}
 
-		update_post_meta( $post_id, 'ec_email_sender',       $sender );
-		update_post_meta( $post_id, 'ec_email_body',         $body );
-		update_post_meta( $post_id, 'ec_email_content_type', $content_type );
+		update_post_meta( $post_id, 'ec_subject',      $phpmailer->Subject );
+		update_post_meta( $post_id, 'ec_body',         $phpmailer->Body );
+		update_post_meta( $post_id, 'ec_content_type', $phpmailer->ContentType );
+		update_post_meta( $post_id, 'ec_from',         $phpmailer->addrFormat( array( $phpmailer->From, $phpmailer->FromName ) ) );
 
-		foreach ( array_keys($recipients) as $recipient ) {
-			add_post_meta( $post_id, 'ec_email_recipients', $recipient );
+		$email_recipients = array(
+			'to'           => $phpmailer->getToAddresses(),
+			'cc'           => $phpmailer->getCcAddresses(),
+			'bcc'          => $phpmailer->getBccAddresses(),
+			'reply_to'     => $phpmailer->getReplyToAddresses(),
+		);
+
+		// Store the email recipients
+		foreach ( $email_recipients as $key => $recipients ) {
+			foreach ( $recipients as $recipient ) {
+				update_post_meta( $post_id, 'ec_' . $key, $phpmailer->addrFormat( $recipient ) );
+			}
 		}
 	}
 
 	/**
-	 * Prevent the email sending (if enabled).
+	 * Prevent the email sending by clearing the mailer data.
 	 *
 	 * @param  PHPMailer &$phpmailer
 	 * @return void
 	 */
 	public function prevent_email( PHPMailer &$phpmailer ) {
-		$prevent_email = $this->settings_api->get_option( 'prevent_email' );
-
-		// Check the prevent email option
-		if ( $prevent_email !== 'yes' ) {
-			return false;
-		}
-
-		// Prevent the email sending by clearing the mailer data.
 		$phpmailer->ClearAllRecipients();
 		$phpmailer->ClearAttachments();
 		$phpmailer->ClearCustomHeaders();
@@ -156,14 +164,10 @@ class Email_Catcher {
 			'singular_name'      => _x( 'Email',   'post type singular',   'email-catcher' ),
 			'menu_name'          => _x( 'Email Catcher', 'admin menu',     'email-catcher' ),
 			'name_admin_bar'     => _x( 'Email',   'add new on admin bar', 'email-catcher' ),
-			'add_new'            => _x( 'Add New', 'email',                'email-catcher' ),
-			'add_new_item'       => __( 'Add New Email',                   'email-catcher' ),
-			'new_item'           => __( 'New Email',                       'email-catcher' ),
 			'edit_item'          => __( 'View Email',                      'email-catcher' ),
 			'view_item'          => __( 'View Email',                      'email-catcher' ),
 			'all_items'          => __( 'All Emails',                      'email-catcher' ),
 			'search_items'       => __( 'Search Emails',                   'email-catcher' ),
-			'parent_item_colon'  => __( 'Parent Emails:',                  'email-catcher' ),
 			'not_found'          => __( 'No emails found.',                'email-catcher' ),
 			'not_found_in_trash' => __( 'No emails found in Trash.',       'email-catcher' )
 		) );
@@ -196,24 +200,49 @@ class Email_Catcher {
 	 *
 	 * @return void
 	 */
-	public function register_meta_boxes() {
-		$email_meta_boxes = array(
-			'subject'    => __( 'Subject', 'email-catcher' ),
-			'sender'     => __( 'From',    'email-catcher' ),
-			'recipients' => __( 'To',      'email-catcher' ),
-			'body'       => __( 'Body',    'email-catcher' ),
+	public function register_meta_boxes( $post ) {
+		$meta_boxes = array(
+			'subject'  => __( 'Subject',  'email-catcher' ),
+			'from'     => __( 'From',     'email-catcher' ),
+			'to'       => __( 'To',       'email-catcher' ),
+			'cc'       => __( 'CC',       'email-catcher' ),
+			'bcc'      => __( 'BCC',      'email-catcher' ),
+			'reply_to' => __( 'Reply To', 'email-catcher' ),
+			'body'     => __( 'Body',     'email-catcher' ),
 		);
 
-		foreach ( $email_meta_boxes as $id => $title ) {
+		foreach ( $meta_boxes as $type => $name ) {
+			$has_value = call_user_func( 'ec_get_' . $type, $post->ID );
+
+			if ( !$has_value ) {
+				continue;
+			}
+
 			add_meta_box( 
-				'ec-email-' . $id,
-				$title,
-				'ec_the_email_' . $id,
+				'ec-email-' . $type,
+				$name,
+				array( $this, 'print_meta_box' ),
 				self::POST_TYPE,
 				'normal',
-				'default'
+				'default',
+				array(
+					'type' => $type
+				)
 			);
 		}
+	}
+
+	/**
+	 * Print the post type meta box content.
+	 *
+	 * @param  object $post
+	 * @param  array  $metabox
+	 * @return void
+	 */
+	public function print_meta_box( $post, $metabox ) {
+		$type = $metabox[ 'args' ][ 'type' ];
+
+		call_user_func( 'ec_print_' . $type, $post->ID );
 	}
 
 	/**
@@ -224,8 +253,8 @@ class Email_Catcher {
 	public function register_settings_menu() {
 		add_submenu_page(
 			'edit.php?post_type=' . self::POST_TYPE, 
-			'Email Catcher Settings', 
-			'Settings', 
+			__('Email Catcher Settings', 'email-catcher'),
+			__('Settings', 'email-catcher'),
 			'manage_options', 
 			'settings' , 
 			array( $this, 'settings_menu_page' )
@@ -307,29 +336,47 @@ class Email_Catcher {
 
 		global $post_status;
 
-		$senders    = $this->get_meta_values( 'ec_email_sender',     self::POST_TYPE, $post_status );
-		$recipients = $this->get_meta_values( 'ec_email_recipients', self::POST_TYPE, $post_status );
+		$from     = $this->get_meta_values( 'ec_from',     self::POST_TYPE, $post_status );
+		$to       = $this->get_meta_values( 'ec_to',       self::POST_TYPE, $post_status );
+		$cc       = $this->get_meta_values( 'ec_cc',       self::POST_TYPE, $post_status );
+		$bcc      = $this->get_meta_values( 'ec_bcc',      self::POST_TYPE, $post_status );
+		$reply_to = $this->get_meta_values( 'ec_reply_to', self::POST_TYPE, $post_status );
 
 		$filters = array(
 			array(
-				'name'    => 'ec_email_sender',
-				'title'   => __( 'Senders', 'email-catcher' ),
-				'options' => array_combine($senders, $senders),
+				'name'    => 'ec_from',
+				'title'   => __( 'From', 'email-catcher' ),
+				'options' => array_combine($from, $from),
 			),
 			array(
-				'name'    => 'ec_email_recipients',
-				'title'   => __( 'Recipients', 'email-catcher' ),
-				'options' => array_combine($recipients, $recipients),
+				'name'    => 'ec_to',
+				'title'   => __( 'To', 'email-catcher' ),
+				'options' => array_combine($to, $to),
+			),
+			array(
+				'name'    => 'ec_cc',
+				'title'   => __( 'CC', 'email-catcher' ),
+				'options' => array_combine($cc, $cc),
+			),
+			array(
+				'name'    => 'ec_bcc',
+				'title'   => __( 'BCC', 'email-catcher' ),
+				'options' => array_combine($bcc, $bcc),
+			),
+			array(
+				'name'    => 'ec_reply_to',
+				'title'   => __( 'Reply To', 'email-catcher' ),
+				'options' => array_combine($reply_to, $reply_to),
 			),
 		);
 
 		foreach ($filters as $filter): ?>
+			<?php $current = isset( $_GET[ $filter[ 'name' ] ] ) ? $_GET[ $filter[ 'name' ] ] : null; ?>
+
 			<select name="<?php echo $filter['name']; ?>">
 				<option value="">
-					<?php echo _x( 'All', 'emails filter', 'email-catcher' ) . ' ' . $filter[ 'title' ]; ?>
+					<?php echo $filter[ 'title' ]; ?>
 				</option>
-
-				<?php $current = isset( $_GET[ $filter[ 'name' ] ] ) ? $_GET[ $filter[ 'name' ] ] : null; ?>
 
 				<?php foreach ( $filter[ 'options' ] as $option ): ?>
 					<option value="<?php echo esc_attr( $option ); ?>" <?php selected( $current, $option ); ?>>
@@ -352,8 +399,11 @@ class Email_Catcher {
 		}
 
 		$filters = array(
-			'ec_email_sender',
-			'ec_email_recipients',
+			'ec_from',
+			'ec_to',
+			'ec_cc',
+			'ec_bcc',
+			'ec_reply_to',
 		);
 
 		$orderby    = $query->get( 'orderby' );
@@ -388,14 +438,14 @@ class Email_Catcher {
 	 * @return void
 	 */
 	public function column_output( $column, $post_id ) {
-		switch ( $column ) {
-			case 'sender':
-				ec_the_email_sender( $post_id );
-				break;
+		$primary_column = 'subject';
 
-			case 'recipients':
-				ec_the_email_recipients( $post_id );
-				break;
+		$output = call_user_func( 'ec_print_' . $column, $post_id, false );
+
+		if ($column === $primary_column) {
+			echo '<a class="row-title" href="' . get_edit_post_link( $post_id ) . '" title="' . __( 'View more details', 'email-catcher' ) . '">' . $output . '</a>';
+		} else {
+			echo $output;
 		}
 	}
 
@@ -406,12 +456,18 @@ class Email_Catcher {
 	 * @return array $columns
 	 */
 	public function set_columns( $columns ) {
-		$columns[ 'title' ]      = __( 'Subject', 'email-catcher' );
-		$columns[ 'sender' ]     = __( 'From',    'email-catcher' );
-		$columns[ 'recipients' ] = __( 'To',      'email-catcher' );
+		$columns[ 'subject' ]  = __( 'Subject',  'email-catcher' );
+		$columns[ 'from' ]     = __( 'From',     'email-catcher' );
+		$columns[ 'to' ]       = __( 'To',       'email-catcher' );
+		$columns[ 'cc' ]       = __( 'CC',       'email-catcher' );
+		$columns[ 'bcc' ]      = __( 'BCC',      'email-catcher' );
+		$columns[ 'reply_to' ] = __( 'Reply To', 'email-catcher' );
+
+		// Remove the title column
+		unset( $columns[ 'title' ] );
 
 		// Make the date column last
-		$date_column       = $columns[ 'date'] ;
+		$date_column = $columns[ 'date'] ;
 		unset( $columns[ 'date' ] );
 		$columns[ 'date' ] = $date_column;
 
@@ -425,8 +481,12 @@ class Email_Catcher {
 	 * @return array $columns
 	 */
 	public function set_sortable_columns( $columns ) {
-		$columns[ 'sender' ]     = 'ec_email_sender';
-		$columns[ 'recipients' ] = 'ec_email_recipients';
+		$columns[ 'subject' ]  = 'ec_subject';
+		$columns[ 'from' ]     = 'ec_from';
+		$columns[ 'to' ]       = 'ec_to';
+		$columns[ 'cc' ]       = 'ec_cc';
+		$columns[ 'bcc' ]      = 'ec_bcc';
+		$columns[ 'reply_to' ] = 'ec_reply_to';
 
 		return $columns;
 	}

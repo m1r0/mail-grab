@@ -18,189 +18,334 @@ function email_catcher() {
 	return Email_Catcher::instance();
 }
 
-endif; // email_catcher
+endif; // email_catcher()
 
 
 
-if ( !function_exists( 'ec_get_email_subject' ) ) :
+if ( !function_exists( 'ec_get_meta' ) ) :
 
 /**
- * Returns the email subject.
+ * Get an email post meta field.
  *
- * @param  int|object $post Post ID/Object
+ * @param  int    $post_id Post ID.
+ * @param  string $key     The meta key to retrieve.
+ * @param  string $single  Optional. Whether to return a single value or an array. Default false.
+ * @return mixed  Will be an array if $single is false. Will be value of meta data
+ *                field if $single is true.
+ */
+function ec_get_meta( $post_id, $key, $single = false ) {
+	$value = get_post_meta( $post_id, 'ec_' . $key, $single );
+	$value = apply_filters( 'ec_get_' . $key, $value, $post_id );
+	$value = apply_filters( 'ec_get_meta', $value, $post_id, $key );
+
+	return $value;
+}
+
+endif; // ec_get_meta()
+
+
+
+if ( !function_exists( 'ec_print_meta' ) ) :
+
+/**
+ * Print an email post meta field.
+ *
+ * @param  int    $post_id Post ID.
+ * @param  string $key     The meta key to retrieve.
+ * @param  string $single  Optional. Whether to return a single value or an array. Default false.
+ * @param  bool   $echo    Print or return the output. Default print.
+ * @return mixed
+ */
+function ec_print_meta( $post_id, $key, $single = false, $echo = true ) {
+	$value  = ec_get_meta( $post_id, $key, $single );
+
+	if ( $single ) {
+		$output = esc_html( $value );
+	} else {
+		$output = nl2br( esc_html( implode( "\n", $value ) ) );
+	}
+
+	$output = apply_filters( 'ec_print_' . $key, $output, $post_id );
+	$output = apply_filters( 'ec_print_meta', $output, $post_id, $key );
+
+	if ( !$echo ) {
+		return $output;
+	}
+
+	echo $output;
+}
+
+endif; // ec_print_meta()
+
+
+
+if ( !function_exists( 'ec_get_subject' ) ) :
+
+/**
+ * Get the email subject.
+ *
+ * @param  int    $post_id Post ID.
  * @return string
  */
-function ec_get_email_subject( $post ) {
-	$post = get_post( $post );
-
-	return apply_filters( 'ec_email_subject', $post->post_title, $post );
+function ec_get_subject( $post_id ) {
+	return ec_get_meta( $post_id, 'subject', true );
 }
 
-endif; // ec_get_email_subject
+endif; // ec_get_subject()
 
 
 
-if ( !function_exists( 'ec_the_email_subject' ) ) :
+if ( !function_exists( 'ec_print_subject' ) ) :
 
 /**
- * Prints the email subject.
+ * Print the email subject.
  *
- * @param  int|object $post Post ID/Object
- * @return void
+ * @param  int  $post_id Post ID.
+ * @param  bool $echo    Print or return the output. Default print.
+ * @return mixed
  */
-function ec_the_email_subject( $post ) {
-	$post   = get_post( $post );
-	$output = ec_get_email_subject( $post );
-
-	echo apply_filters( 'ec_email_subject_output', $output, $post );
+function ec_print_subject( $post_id, $echo = true ) {
+	return ec_print_meta( $post_id, 'subject', true, $echo );
 }
 
-endif; // ec_the_email_subject
+endif; // ec_print_subject()
 
 
 
-if ( !function_exists( 'ec_get_email_sender' ) ) :
+if ( !function_exists( 'ec_get_from' ) ) :
 
 /**
- * Returns the email sender.
+ * Get the email "From" address.
  *
- * @param  int|object $post Post ID/Object
+ * @param  int    $post_id Post ID.
  * @return string
  */
-function ec_get_email_sender( $post ) {
-	$post   = get_post( $post );
-	$sender = get_post_meta( $post->ID, 'ec_email_sender', true );
-
-	return apply_filters( 'ec_email_sender', $sender, $post );
+function ec_get_from( $post_id ) {
+	return ec_get_meta( $post_id, 'from', true );
 }
 
-endif; // ec_get_email_sender
+endif; // ec_get_from()
 
 
 
-if ( !function_exists( 'ec_the_email_sender' ) ) :
+if ( !function_exists( 'ec_print_from' ) ) :
 
 /**
- * Prints the email sender.
+ * Print the email "From" address.
  *
- * @param  int|object $post Post ID/Object
- * @return void
+ * @param  int  $post_id Post ID.
+ * @param  bool $echo    Print or return the output. Default print.
+ * @return mixed
  */
-function ec_the_email_sender( $post ) {
-	$post   = get_post( $post );
-	$output = ec_get_email_sender( $post );
-
-	echo apply_filters( 'ec_email_sender_output', $output, $post );
+function ec_print_from( $post_id, $echo = true ) {
+	return ec_print_meta( $post_id, 'from', true, $echo );
 }
 
-endif; // ec_the_email_sender
+endif; // ec_print_from()
 
 
 
-if ( !function_exists( 'ec_get_email_recipients' ) ) :
+if ( !function_exists( 'ec_get_to' ) ) :
 
 /**
- * Returns the email recipients.
+ * Get the email "To" recipients.
  *
- * @param  int|object $post Post ID/Object
+ * @param  int   $post_id Post ID.
  * @return array
  */
-function ec_get_email_recipients( $post ) {
-	$post       = get_post( $post );
-	$recipients = get_post_meta( $post->ID, 'ec_email_recipients', false );
-
-	return apply_filters( 'ec_email_recipients', $recipients, $post );
+function ec_get_to( $post_id ) {
+	return ec_get_meta( $post_id, 'to', false );
 }
 
-endif; // ec_get_email_recipients
+endif; // ec_get_to()
 
 
 
-if ( !function_exists( 'ec_the_email_recipients' ) ) :
+if ( !function_exists( 'ec_print_to' ) ) :
 
 /**
- * Prints the email recipients.
+ * Print the email "To" recipients.
  *
- * @param  int|object $post Post ID/Object
- * @return void
+ * @param  int  $post_id Post ID.
+ * @param  bool $echo    Print or return the output. Default print.
+ * @return mixed
  */
-function ec_the_email_recipients( $post ) {
-	$post   = get_post( $post );
-	$output = nl2br( implode( "\n", ec_get_email_recipients( $post ) ) );
-
-	echo apply_filters( 'ec_email_recipients_output', $output, $post );
+function ec_print_to( $post_id, $echo = true ) {
+	return ec_print_meta( $post_id, 'to', false, $echo );
 }
 
-endif; // ec_the_email_recipients
+endif; // ec_print_to()
 
 
 
-if ( !function_exists( 'ec_get_email_body' ) ) :
+if ( !function_exists( 'ec_get_cc' ) ) :
 
 /**
- * Returns the email body.
+ * Get the email "CC" recipients.
  *
- * @param  int|object $post Post ID/Object
+ * @param  int  $post_id Post ID.
+ * @return array
+ */
+function ec_get_cc( $post_id ) {
+	return ec_get_meta( $post_id, 'cc', false );
+}
+
+endif; // ec_get_cc()
+
+
+
+if ( !function_exists( 'ec_print_cc' ) ) :
+
+/**
+ * Print the email "CC" recipients.
+ *
+ * @param  int  $post_id Post ID.
+ * @param  bool $echo    Print or return the output. Default print.
+ * @return mixed
+ */
+function ec_print_cc( $post_id, $echo = true ) {
+	return ec_print_meta( $post_id, 'cc', false, $echo );
+}
+
+endif; // ec_print_cc()
+
+
+
+if ( !function_exists( 'ec_get_bcc' ) ) :
+
+/**
+ * Get the email "BCC" recipients.
+ *
+ * @param  int  $post_id Post ID.
+ * @return array
+ */
+function ec_get_bcc( $post_id ) {
+	return ec_get_meta( $post_id, 'bcc', false );
+}
+
+endif; // ec_get_bcc()
+
+
+
+if ( !function_exists( 'ec_print_bcc' ) ) :
+
+/**
+ * Print the email "BCC" recipients.
+ *
+ * @param  int  $post_id Post ID.
+ * @param  bool $echo    Print or return the output. Default print.
+ * @return mixed
+ */
+function ec_print_bcc( $post_id, $echo = true ) {
+	return ec_print_meta( $post_id, 'bcc', false, $echo );
+}
+
+endif; // ec_print_bcc()
+
+
+
+if ( !function_exists( 'ec_get_reply_to' ) ) :
+
+/**
+ * Get the email "Reply To" recipients.
+ *
+ * @param  int  $post_id Post ID.
+ * @return array
+ */
+function ec_get_reply_to( $post_id ) {
+	return ec_get_meta( $post_id, 'reply_to', false );
+}
+
+endif; // ec_get_reply_to()
+
+
+
+if ( !function_exists( 'ec_print_reply_to' ) ) :
+
+/**
+ * Print the email "Reply To" recipients.
+ *
+ * @param  int  $post_id Post ID.
+ * @param  bool $echo    Print or return the output. Default print.
+ * @return mixed
+ */
+function ec_print_reply_to( $post_id, $echo = true ) {
+	return ec_print_meta( $post_id, 'reply_to', false, $echo );
+}
+
+endif; // ec_print_reply_to()
+
+
+
+if ( !function_exists( 'ec_get_body' ) ) :
+
+/**
+ * Get the email body.
+ *
+ * @param  int  $post_id Post ID.
  * @return string
  */
-function ec_get_email_body( $post ) {
-	$post = get_post( $post );
-	$body = get_post_meta( $post->ID, 'ec_email_body', true );
-
-	return apply_filters( 'ec_email_body', $body, $post );
+function ec_get_body( $post_id ) {
+	return ec_get_meta( $post_id, 'body', true );
 }
 
-endif; // ec_get_email_body
+endif; // ec_get_body()
 
 
 
-if ( !function_exists( 'ec_the_email_body' ) ) :
+if ( !function_exists( 'ec_print_body' ) ) :
 
 /**
- * Prints the email body.
+ * Print the email body.
  * If the email content type is HTML - use an iframe.
  *
- * @param  int|object $post Post ID/Object
- * @return void
+ * @param  int  $post_id Post ID.
+ * @param  bool $echo    Print or return the output. Default print.
+ * @return mixed
  */
-function ec_the_email_body( $post ) {
-	$post    = get_post( $post );
-	$is_html = ec_email_is_html( $post );
+function ec_print_body( $post_id, $echo = true ) {
+	$is_html = ec_is_html( $post_id );
 
 	if ($is_html) {
 		$email_catcher = email_catcher();
-		$api_url       = $email_catcher->api_url( array( 
-			'request' => 'email_body', 
-			'post_id' => $post->ID 
+
+		$api_url = $email_catcher->api_url( array(
+			'request' => 'body',
+			'post_id' => $post_id,
 		) );
 
 		$output = '<iframe src="' . $api_url . '" class="ec-iframe" sandbox="allow-same-origin"></iframe>';
 	} else {
-		$body   = ec_get_email_body( $post );
+		$body   = ec_get_body( $post_id );
 		$output = nl2br( esc_html( $body ) );
 	}
 
-	echo apply_filters( 'ec_email_body_output', $output, $post, $is_html );
+	$output = apply_filters( 'ec_print_body', $output, $post_id, $is_html );
+
+	if ( !$echo ) {
+		return $output;
+	}
+
+	echo $output;
 }
 
-endif; // ec_the_email_body
+endif; // ec_print_body()
 
 
 
-if ( !function_exists( 'ec_email_is_html' ) ) :
+if ( !function_exists( 'ec_is_html' ) ) :
 
 /**
  * Checks if the email content type is HTML.
  *
- * @param  int|object $post Post ID/Object
+ * @param  int  $post_id Post ID.
  * @return bool
  */
-function ec_email_is_html( $post ) {
-	$post         = get_post( $post );
-	$content_type = get_post_meta( $post->ID, 'ec_email_content_type', true );
+function ec_is_html( $post_id ) {
+	$content_type = ec_get_meta( $post_id, 'content_type', true );
 	$is_html      = $content_type === 'text/html';
 
-	return  apply_filters( 'ec_email_is_html', $is_html, $post, $content_type );
+	return  apply_filters( 'ec_is_html', $is_html, $post_id, $content_type );
 }
 
-endif; // ec_email_is_html
+endif; // ec_is_html()

@@ -440,7 +440,10 @@ class Email_Catcher {
 	public function column_output( $column, $post_id ) {
 		$primary_column = 'subject';
 
-		$output = call_user_func( 'ec_print_' . $column, $post_id, false );
+		$output = '';
+		if ( function_exists( 'ec_print_' . $column ) ) {
+			$output = call_user_func( 'ec_print_' . $column, $post_id, false );
+		}
 
 		if ($column === $primary_column) {
 			echo '<a class="row-title" href="' . get_edit_post_link( $post_id ) . '" title="' . __( 'View more details', 'email-catcher' ) . '">' . $output . '</a>';

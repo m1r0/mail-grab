@@ -52,7 +52,7 @@ class Email_Catcher {
 		$this->settings_api = new EC_Settings_API();
 
 		# Actions
-		add_action( 'phpmailer_init',                                       array( $this, 'catch_mailer' ),         1000, 1 );
+		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),         1000, 1 );
 		add_action( 'ec_store_email',                                       array( $this, 'store_email' ),            10, 1 );
 		add_action( 'ec_prevent_email',                                     array( $this, 'prevent_email' ),          10, 1 );
 
@@ -72,14 +72,20 @@ class Email_Catcher {
 		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'set_action_links'),        10, 1 );
 	}
 
-	public function catch_mailer( PHPMailer &$phpmailer ) {
+	/**
+	 * Intercept the email.
+	 *
+	 * @param  PHPMailer $phpmailer
+	 * @return void
+	 */
+	public function catch_email( &$phpmailer ) {
 		// Store the email
 		do_action( 'ec_store_email', $phpmailer );
 
 		// Prevent the email sending if the option is enabled
 		$prevent_email = $this->settings_api->get_option( 'prevent_email' ) === 'yes';
 		if ( $prevent_email ) {
-			do_action_ref_array( 'ec_prevent_email', array( &$phpmailer) );
+			do_action_ref_array( 'ec_prevent_email', array( &$phpmailer ) );
 		}
 	}
 
@@ -87,16 +93,16 @@ class Email_Catcher {
 	 * Store the email as a post.
 	 *
 	 * @param  PHPMailer $phpmailer
-	 * @return void
+	 * @return int|WP_Error The post ID on success. The value 0 or WP_Error on failure.
 	 */
-	public function store_email( PHPMailer $phpmailer ) {
+	public function store_email( $phpmailer ) {
 		$post_id = wp_insert_post( array(
 			'post_type'   => self::POST_TYPE,
 			'post_status' => 'publish',
 		) );
 
-		if ( !$post_id ) {
-			return false;
+		if ( is_wp_error( $post_id ) || $post_id === 0 ) {
+			return $post_id;
 		}
 
 		update_post_meta( $post_id, 'ec_subject',      $phpmailer->Subject );
@@ -117,6 +123,8 @@ class Email_Catcher {
 				update_post_meta( $post_id, 'ec_' . $key, $phpmailer->addrFormat( $recipient ) );
 			}
 		}
+
+		return $post_id;
 	}
 
 	/**
@@ -125,7 +133,7 @@ class Email_Catcher {
 	 * @param  PHPMailer &$phpmailer
 	 * @return void
 	 */
-	public function prevent_email( PHPMailer &$phpmailer ) {
+	public function prevent_email( &$phpmailer ) {
 		$phpmailer->ClearAllRecipients();
 		$phpmailer->ClearAttachments();
 		$phpmailer->ClearCustomHeaders();
@@ -198,9 +206,10 @@ class Email_Catcher {
 	/**
 	 * Register post type meta boxes.
 	 *
+	 * @param  WP_Post $post
 	 * @return void
 	 */
-	public function register_meta_boxes( $post ) {
+	public function register_meta_boxes( WP_Post $post ) {
 		$meta_boxes = array(
 			'subject'  => __( 'Subject',  'email-catcher' ),
 			'from'     => __( 'From',     'email-catcher' ),
@@ -218,7 +227,7 @@ class Email_Catcher {
 				continue;
 			}
 
-			add_meta_box( 
+			add_meta_box(
 				'ec-email-' . $type,
 				$name,
 				array( $this, 'print_meta_box' ),
@@ -252,11 +261,11 @@ class Email_Catcher {
 	 */
 	public function register_settings_menu() {
 		add_submenu_page(
-			'edit.php?post_type=' . self::POST_TYPE, 
+			'edit.php?post_type=' . self::POST_TYPE,
 			__('Email Catcher Settings', 'email-catcher'),
 			__('Settings', 'email-catcher'),
-			'manage_options', 
-			'settings' , 
+			'manage_options',
+			'settings' ,
 			array( $this, 'settings_menu_page' )
 		);
 	}
@@ -554,7 +563,7 @@ class Email_Catcher {
 			AND 
 				p.post_type = %s
 			",
-			$meta_key, 
+			$meta_key,
 			$post_type
 		);
 

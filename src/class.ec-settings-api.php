@@ -13,7 +13,6 @@ if ( !class_exists( 'EC_Settings_API' ) ):
  *
  * @author Tareq Hasan <tareq@weDevs.com>
  * @link http://tareq.weDevs.com Tareq's Planet
- * @example src/settings-api.php How to use the class
  */
 class EC_Settings_API {
 

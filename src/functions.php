@@ -21,7 +21,6 @@ function email_catcher() {
 endif; // email_catcher()
 
 
-
 if ( !function_exists( 'ec_get_meta' ) ) :
 
 /**
@@ -42,7 +41,6 @@ function ec_get_meta( $post_id, $key, $single = false ) {
 }
 
 endif; // ec_get_meta()
-
 
 
 if ( !function_exists( 'ec_print_meta' ) ) :
@@ -78,7 +76,6 @@ function ec_print_meta( $post_id, $key, $single = false, $echo = true ) {
 endif; // ec_print_meta()
 
 
-
 if ( !function_exists( 'ec_get_subject' ) ) :
 
 /**
@@ -92,7 +89,6 @@ function ec_get_subject( $post_id ) {
 }
 
 endif; // ec_get_subject()
-
 
 
 if ( !function_exists( 'ec_print_subject' ) ) :
@@ -111,7 +107,6 @@ function ec_print_subject( $post_id, $echo = true ) {
 endif; // ec_print_subject()
 
 
-
 if ( !function_exists( 'ec_get_from' ) ) :
 
 /**
@@ -125,7 +120,6 @@ function ec_get_from( $post_id ) {
 }
 
 endif; // ec_get_from()
-
 
 
 if ( !function_exists( 'ec_print_from' ) ) :
@@ -144,7 +138,6 @@ function ec_print_from( $post_id, $echo = true ) {
 endif; // ec_print_from()
 
 
-
 if ( !function_exists( 'ec_get_to' ) ) :
 
 /**
@@ -158,7 +151,6 @@ function ec_get_to( $post_id ) {
 }
 
 endif; // ec_get_to()
-
 
 
 if ( !function_exists( 'ec_print_to' ) ) :
@@ -177,7 +169,6 @@ function ec_print_to( $post_id, $echo = true ) {
 endif; // ec_print_to()
 
 
-
 if ( !function_exists( 'ec_get_cc' ) ) :
 
 /**
@@ -191,7 +182,6 @@ function ec_get_cc( $post_id ) {
 }
 
 endif; // ec_get_cc()
-
 
 
 if ( !function_exists( 'ec_print_cc' ) ) :
@@ -210,7 +200,6 @@ function ec_print_cc( $post_id, $echo = true ) {
 endif; // ec_print_cc()
 
 
-
 if ( !function_exists( 'ec_get_bcc' ) ) :
 
 /**
@@ -224,7 +213,6 @@ function ec_get_bcc( $post_id ) {
 }
 
 endif; // ec_get_bcc()
-
 
 
 if ( !function_exists( 'ec_print_bcc' ) ) :
@@ -243,7 +231,6 @@ function ec_print_bcc( $post_id, $echo = true ) {
 endif; // ec_print_bcc()
 
 
-
 if ( !function_exists( 'ec_get_reply_to' ) ) :
 
 /**
@@ -257,7 +244,6 @@ function ec_get_reply_to( $post_id ) {
 }
 
 endif; // ec_get_reply_to()
-
 
 
 if ( !function_exists( 'ec_print_reply_to' ) ) :
@@ -276,7 +262,6 @@ function ec_print_reply_to( $post_id, $echo = true ) {
 endif; // ec_print_reply_to()
 
 
-
 if ( !function_exists( 'ec_get_body' ) ) :
 
 /**
@@ -290,7 +275,6 @@ function ec_get_body( $post_id ) {
 }
 
 endif; // ec_get_body()
-
 
 
 if ( !function_exists( 'ec_print_body' ) ) :
@@ -330,7 +314,6 @@ function ec_print_body( $post_id, $echo = true ) {
 }
 
 endif; // ec_print_body()
-
 
 
 if ( !function_exists( 'ec_is_html' ) ) :

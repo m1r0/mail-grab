@@ -40,6 +40,8 @@ class Email_Catcher {
 
 	/**
 	 * Silence is golden.
+	 *
+	 * @return void
 	 */
 	private function __construct() {}
 
@@ -52,7 +54,7 @@ class Email_Catcher {
 		$this->settings_api = new EC_Settings_API();
 
 		# Actions
-		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),         1000, 1 );
+		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
 		add_action( 'ec_store_email',                                       array( $this, 'store_email' ),            10, 1 );
 		add_action( 'ec_prevent_email',                                     array( $this, 'prevent_email' ),          10, 1 );
 
@@ -134,10 +136,10 @@ class Email_Catcher {
 	 * @return void
 	 */
 	public function prevent_email( &$phpmailer ) {
-		$phpmailer->ClearAllRecipients();
-		$phpmailer->ClearAttachments();
-		$phpmailer->ClearCustomHeaders();
-		$phpmailer->ClearReplyTos();
+		$phpmailer->clearAllRecipients();
+		$phpmailer->clearAttachments();
+		$phpmailer->clearCustomHeaders();
+		$phpmailer->clearReplyTos();
 	}
 
 	/**

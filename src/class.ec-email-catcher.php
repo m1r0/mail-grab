@@ -3,12 +3,12 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) or exit;
 
-if ( !class_exists( 'Email_Catcher' ) ) :
+if ( !class_exists( 'EC_Email_Catcher' ) ) :
 
 /**
  * Main Email Catcher class
  */
-class Email_Catcher {
+class EC_Email_Catcher {
 
 	/**
 	 * The email catcher post type.
@@ -25,7 +25,7 @@ class Email_Catcher {
 	/**
 	 * Singleton implementation.
 	 *
-	 * @return Email_Catcher
+	 * @return EC_Email_Catcher
 	 */
 	public static function instance() {
 		static $instance;
@@ -562,7 +562,7 @@ class Email_Catcher {
 				p.ID = pm.post_id
 			WHERE
 				pm.meta_key = %s
-			AND 
+			AND
 				p.post_type = %s
 			",
 			$meta_key,
@@ -572,7 +572,7 @@ class Email_Catcher {
 		if ( $post_status ) {
 			$query .= $wpdb->prepare(
 				"
-				AND 
+				AND
 					p.post_status = %s
 				",
 				$post_status
@@ -580,7 +580,7 @@ class Email_Catcher {
 		} else {
 			$query .= $wpdb->prepare(
 				"
-				AND 
+				AND
 					p.post_status <> %s
 				",
 				'trash'
@@ -597,7 +597,7 @@ class Email_Catcher {
 	 * @return void
 	 */
 	public static function uninstall() {
-		$email_catcher = email_catcher();
+		$email_catcher = ec_email_catcher();
 		$uninstall     = $email_catcher->settings_api->get_option( 'uninstall' );
 
 		// Check if uninstall is enabled and the user permissions

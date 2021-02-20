@@ -3,7 +3,7 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) or exit;
 
-if ( !function_exists( 'email_catcher' ) ) :
+if ( !function_exists( 'ec_email_catcher' ) ) :
 
 /**
  * The main function responsible for returning the Email_Catcher instance.
@@ -11,11 +11,10 @@ if ( !function_exists( 'email_catcher' ) ) :
  * Use this function like you would a global variable, except without needing
  * to declare the global.
  *
- * @example $email_catcher = email_catcher();
- * @return  Email_Catcher instance
+ * @return  EC_Email_Catcher instance
  */
-function email_catcher() {
-	return Email_Catcher::instance();
+function ec_email_catcher() {
+	return EC_Email_Catcher::instance();
 }
 
 endif; // email_catcher()
@@ -291,7 +290,7 @@ function ec_print_body( $post_id, $echo = true ) {
 	$is_html = ec_is_html( $post_id );
 
 	if ($is_html) {
-		$email_catcher = email_catcher();
+		$email_catcher = ec_email_catcher();
 
 		$api_url = $email_catcher->api_url( array(
 			'request' => 'body',

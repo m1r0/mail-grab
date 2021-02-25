@@ -361,9 +361,6 @@ class EC_Email_Catcher {
 	public function set_columns( $columns ) {
 		$columns[ 'from' ]     = __( 'From',     'email-catcher' );
 		$columns[ 'to' ]       = __( 'To',       'email-catcher' );
-		$columns[ 'cc' ]       = __( 'CC',       'email-catcher' );
-		$columns[ 'bcc' ]      = __( 'BCC',      'email-catcher' );
-		$columns[ 'reply_to' ] = __( 'Reply To', 'email-catcher' );
 
 		// Make the date column last
 		$date_column = $columns[ 'date'] ;

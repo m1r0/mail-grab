@@ -58,15 +58,15 @@ class EC_Email_Catcher {
 		add_action( 'ec_store_email',                                       array( $this, 'store_email' ),            10, 1 );
 		add_action( 'ec_prevent_email',                                     array( $this, 'prevent_email' ),          10, 1 );
 
-		add_action( 'admin_enqueue_scripts',                                array( $this, 'enqueue_scripts' ),        10, 1 );
 		add_action( 'init',                                                 array( $this, 'register_post_type' ),     10, 0 );
+		add_action( 'admin_enqueue_scripts',                                array( $this, 'enqueue_scripts' ),        10, 1 );
 		add_action( 'admin_menu',                                           array( $this, 'register_settings_menu' ), 10, 0 );
 		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
 		add_action( 'add_meta_boxes_' . self::POST_TYPE,                    array( $this, 'register_meta_boxes' ),    10, 1 );
+		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'add_action_links'),        10, 1 );
 
-		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column',   array( $this, 'column_output' ),          10, 2 );
-		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'set_columns'),             10, 1 );
-		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'set_action_links'),        10, 1 );
+		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'add_columns'),             10, 1 );
+		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column',   array( $this, 'print_column' ),           10, 2 );
 	}
 
 	/**
@@ -330,34 +330,25 @@ class EC_Email_Catcher {
 	}
 
 	/**
-	 * Output the value for the new columns.
+	 * Print the value for the columns.
 	 *
 	 * @param  string $column
 	 * @param  int    $post_id
 	 * @return void
 	 */
-	public function column_output( $column, $post_id ) {
-		$primary_column = 'subject';
-
-		$output = '';
+	public function print_column( $column, $post_id ) {
 		if ( function_exists( 'ec_print_' . $column ) ) {
-			$output = call_user_func( 'ec_print_' . $column, $post_id, false );
-		}
-
-		if ($column === $primary_column) {
-			echo '<a class="row-title" href="' . get_edit_post_link( $post_id ) . '" title="' . __( 'View more details', 'email-catcher' ) . '">' . $output . '</a>';
-		} else {
-			echo $output;
+			echo call_user_func( 'ec_print_' . $column, $post_id, false );
 		}
 	}
 
 	/**
-	 * Set the post type columns.
+	 * Add the post type columns.
 	 *
 	 * @param  array $columns
 	 * @return array $columns
 	 */
-	public function set_columns( $columns ) {
+	public function add_columns( $columns ) {
 		$columns[ 'from' ]     = __( 'From',     'email-catcher' );
 		$columns[ 'to' ]       = __( 'To',       'email-catcher' );
 
@@ -370,12 +361,12 @@ class EC_Email_Catcher {
 	}
 
 	/**
-	 * Set the plugin action links.
+	 * Add the plugin action links.
 	 *
 	 * @param  array $links
 	 * @return array $links
 	 */
-	public function set_action_links( $links ) {
+	public function add_action_links( $links ) {
 		$links[ 'settings' ] = '<a href="' . admin_url( 'edit.php?post_type=' . self::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings' ) . '</a>';
 
 		return $links;

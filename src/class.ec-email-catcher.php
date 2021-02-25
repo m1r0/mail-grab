@@ -95,6 +95,7 @@ class EC_Email_Catcher {
 	 */
 	public function store_email( $phpmailer ) {
 		$post_id = wp_insert_post( array(
+			'post_title'  => $phpmailer->Subject,
 			'post_type'   => self::POST_TYPE,
 			'post_status' => 'publish',
 		) );
@@ -103,7 +104,6 @@ class EC_Email_Catcher {
 			return $post_id;
 		}
 
-		update_post_meta( $post_id, 'ec_subject',      $phpmailer->Subject );
 		update_post_meta( $post_id, 'ec_body',         $phpmailer->Body );
 		update_post_meta( $post_id, 'ec_content_type', $phpmailer->ContentType );
 		update_post_meta( $post_id, 'ec_from',         $phpmailer->addrFormat( array( $phpmailer->From, $phpmailer->FromName ) ) );
@@ -359,15 +359,11 @@ class EC_Email_Catcher {
 	 * @return array $columns
 	 */
 	public function set_columns( $columns ) {
-		$columns[ 'subject' ]  = __( 'Subject',  'email-catcher' );
 		$columns[ 'from' ]     = __( 'From',     'email-catcher' );
 		$columns[ 'to' ]       = __( 'To',       'email-catcher' );
 		$columns[ 'cc' ]       = __( 'CC',       'email-catcher' );
 		$columns[ 'bcc' ]      = __( 'BCC',      'email-catcher' );
 		$columns[ 'reply_to' ] = __( 'Reply To', 'email-catcher' );
-
-		// Remove the title column
-		unset( $columns[ 'title' ] );
 
 		// Make the date column last
 		$date_column = $columns[ 'date'] ;

@@ -84,7 +84,7 @@ if ( !function_exists( 'ec_get_subject' ) ) :
  * @return string
  */
 function ec_get_subject( $post_id ) {
-	return ec_get_meta( $post_id, 'subject', true );
+	return get_the_title( $post_id );
 }
 
 endif; // ec_get_subject()
@@ -100,7 +100,13 @@ if ( !function_exists( 'ec_print_subject' ) ) :
  * @return mixed
  */
 function ec_print_subject( $post_id, $echo = true ) {
-	return ec_print_meta( $post_id, 'subject', true, $echo );
+	$output = esc_html( ec_get_subject( $post_id ) );
+
+	if ( ! $echo ) {
+		return $output;
+	}
+
+	echo $output;
 }
 
 endif; // ec_print_subject()

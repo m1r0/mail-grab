@@ -66,7 +66,6 @@ class EC_Email_Catcher {
 
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column',   array( $this, 'column_output' ),          10, 2 );
 		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'set_columns'),             10, 1 );
-		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( $this, 'set_sortable_columns'),    10, 1 );
 		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'set_action_links'),        10, 1 );
 	}
 
@@ -366,23 +365,6 @@ class EC_Email_Catcher {
 		$date_column = $columns[ 'date'] ;
 		unset( $columns[ 'date' ] );
 		$columns[ 'date' ] = $date_column;
-
-		return $columns;
-	}
-
-	/**
-	 * Set the sortable post type columns.
-	 *
-	 * @param  array $columns
-	 * @return array $columns
-	 */
-	public function set_sortable_columns( $columns ) {
-		$columns[ 'subject' ]  = 'ec_subject';
-		$columns[ 'from' ]     = 'ec_from';
-		$columns[ 'to' ]       = 'ec_to';
-		$columns[ 'cc' ]       = 'ec_cc';
-		$columns[ 'bcc' ]      = 'ec_bcc';
-		$columns[ 'reply_to' ] = 'ec_reply_to';
 
 		return $columns;
 	}

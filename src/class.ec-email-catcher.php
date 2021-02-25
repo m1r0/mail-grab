@@ -64,11 +64,7 @@ class EC_Email_Catcher {
 		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
 		add_action( 'add_meta_boxes_' . self::POST_TYPE,                    array( $this, 'register_meta_boxes' ),    10, 1 );
 
-		add_action( 'restrict_manage_posts',                                array( $this, 'column_filters' ),         10, 0 );
-		add_action( 'pre_get_posts',                                        array( $this, 'column_query' ),           10, 1 );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column',   array( $this, 'column_output' ),          10, 2 );
-
-		# Filters
 		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'set_columns'),             10, 1 );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( $this, 'set_sortable_columns'),    10, 1 );
 		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'set_action_links'),        10, 1 );
@@ -332,113 +328,6 @@ class EC_Email_Catcher {
 			<?php $this->settings_api->show_forms(); ?>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Add select filters to the post listing table.
-	 *
-	 * @global $post_status
-	 * @return void
-	 */
-	public function column_filters(){
-		if ( empty( $_GET[ 'post_type' ] ) || $_GET[ 'post_type' ] !== self::POST_TYPE ) {
-			return;
-		}
-
-		global $post_status;
-
-		$from     = $this->get_meta_values( 'ec_from',     self::POST_TYPE, $post_status );
-		$to       = $this->get_meta_values( 'ec_to',       self::POST_TYPE, $post_status );
-		$cc       = $this->get_meta_values( 'ec_cc',       self::POST_TYPE, $post_status );
-		$bcc      = $this->get_meta_values( 'ec_bcc',      self::POST_TYPE, $post_status );
-		$reply_to = $this->get_meta_values( 'ec_reply_to', self::POST_TYPE, $post_status );
-
-		$filters = array(
-			array(
-				'name'    => 'ec_from',
-				'title'   => __( 'From', 'email-catcher' ),
-				'options' => array_combine($from, $from),
-			),
-			array(
-				'name'    => 'ec_to',
-				'title'   => __( 'To', 'email-catcher' ),
-				'options' => array_combine($to, $to),
-			),
-			array(
-				'name'    => 'ec_cc',
-				'title'   => __( 'CC', 'email-catcher' ),
-				'options' => array_combine($cc, $cc),
-			),
-			array(
-				'name'    => 'ec_bcc',
-				'title'   => __( 'BCC', 'email-catcher' ),
-				'options' => array_combine($bcc, $bcc),
-			),
-			array(
-				'name'    => 'ec_reply_to',
-				'title'   => __( 'Reply To', 'email-catcher' ),
-				'options' => array_combine($reply_to, $reply_to),
-			),
-		);
-
-		foreach ($filters as $filter): ?>
-			<?php $current = isset( $_GET[ $filter[ 'name' ] ] ) ? $_GET[ $filter[ 'name' ] ] : null; ?>
-
-			<select name="<?php echo $filter['name']; ?>">
-				<option value="">
-					<?php echo $filter[ 'title' ]; ?>
-				</option>
-
-				<?php foreach ( $filter[ 'options' ] as $option ): ?>
-					<option value="<?php echo esc_attr( $option ); ?>" <?php selected( $current, $option ); ?>>
-						<?php echo esc_html( $option ); ?>
-					</option>
-				<?php endforeach ?>
-			</select>
-		<?php endforeach;
-	}
-
-	/**
-	 * Enable the columns sorting and filtering by altering the query.
-	 *
-	 * @param  object $query
-	 * @return void
-	 */
-	public function column_query( $query ) {
-		if ( !is_admin() || $query->get( 'post_type' ) !== self::POST_TYPE ) {
-			return;
-		}
-
-		$filters = array(
-			'ec_from',
-			'ec_to',
-			'ec_cc',
-			'ec_bcc',
-			'ec_reply_to',
-		);
-
-		$orderby    = $query->get( 'orderby' );
-		$meta_query = $query->get( 'meta_query' );
-
-		// Filtering
-		foreach ( $filters as $filter) {
-			if ( empty( $_GET[ $filter ] ) ) {
-				continue;
-			}
-
-			$meta_query[] = array(
-				'key'   => $filter,
-				'value' => $_GET[ $filter ],
-			);
-		}
-
-		$query->set( 'meta_query', $meta_query );
-
-		// Sorting
-		if ( in_array( $orderby, $filters ) ) {
-			$query->set( 'meta_key', $orderby );
-			$query->set( 'orderby', 'meta_value' );
-		}
 	}
 
 	/**

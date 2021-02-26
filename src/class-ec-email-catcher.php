@@ -1,9 +1,6 @@
 <?php
 
-// Exit if accessed directly
-defined( 'ABSPATH' ) or exit;
-
-if ( !class_exists( 'EC_Email_Catcher' ) ) :
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Main Email Catcher class
@@ -30,7 +27,7 @@ class EC_Email_Catcher {
 	public static function instance() {
 		static $instance;
 
-		if ( !is_a( $instance, __CLASS__ ) ) {
+		if ( ! is_a( $instance, __CLASS__ ) ) {
 			$instance = new self();
 			$instance->setup();
 		}
@@ -53,7 +50,7 @@ class EC_Email_Catcher {
 	private function setup() {
 		$this->settings_api = new EC_Settings_API();
 
-		# Actions
+		// Actions.
 		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
 		add_action( 'ec_store_email',                                       array( $this, 'store_email' ),            10, 1 );
 		add_action( 'ec_prevent_email',                                     array( $this, 'prevent_email' ),          10, 1 );
@@ -63,23 +60,23 @@ class EC_Email_Catcher {
 		add_action( 'admin_menu',                                           array( $this, 'register_settings_menu' ), 10, 0 );
 		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
 		add_action( 'add_meta_boxes_' . self::POST_TYPE,                    array( $this, 'register_meta_boxes' ),    10, 1 );
-		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'add_action_links'),        10, 1 );
+		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'add_action_links' ),       10, 1 );
 
-		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'add_columns'),             10, 1 );
+		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'add_columns' ),            10, 1 );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column',   array( $this, 'print_column' ),           10, 2 );
 	}
 
 	/**
 	 * Intercept the email.
 	 *
-	 * @param  PHPMailer $phpmailer
+	 * @param  PHPMailer $phpmailer instance.
 	 * @return void
 	 */
 	public function catch_email( &$phpmailer ) {
-		// Store the email
+		// Store the email.
 		do_action( 'ec_store_email', $phpmailer );
 
-		// Prevent the email sending if the option is enabled
+		// Prevent the email sending if the option is enabled.
 		$prevent_email = $this->settings_api->get_option( 'prevent_email' ) === 'yes';
 		if ( $prevent_email ) {
 			do_action_ref_array( 'ec_prevent_email', array( &$phpmailer ) );
@@ -89,17 +86,19 @@ class EC_Email_Catcher {
 	/**
 	 * Store the email as a post.
 	 *
-	 * @param  PHPMailer $phpmailer
+	 * @param  PHPMailer $phpmailer instance.
 	 * @return int|WP_Error The post ID on success. The value 0 or WP_Error on failure.
 	 */
 	public function store_email( $phpmailer ) {
-		$post_id = wp_insert_post( array(
-			'post_title'  => $phpmailer->Subject,
-			'post_type'   => self::POST_TYPE,
-			'post_status' => 'publish',
-		) );
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => $phpmailer->Subject,
+				'post_type'   => self::POST_TYPE,
+				'post_status' => 'publish',
+			)
+		);
 
-		if ( is_wp_error( $post_id ) || $post_id === 0 ) {
+		if ( is_wp_error( $post_id ) || 0 === $post_id ) {
 			return $post_id;
 		}
 
@@ -108,13 +107,13 @@ class EC_Email_Catcher {
 		update_post_meta( $post_id, 'ec_from',         $phpmailer->addrFormat( array( $phpmailer->From, $phpmailer->FromName ) ) );
 
 		$email_recipients = array(
-			'to'           => $phpmailer->getToAddresses(),
-			'cc'           => $phpmailer->getCcAddresses(),
-			'bcc'          => $phpmailer->getBccAddresses(),
-			'reply_to'     => $phpmailer->getReplyToAddresses(),
+			'to'       => $phpmailer->getToAddresses(),
+			'cc'       => $phpmailer->getCcAddresses(),
+			'bcc'      => $phpmailer->getBccAddresses(),
+			'reply_to' => $phpmailer->getReplyToAddresses(),
 		);
 
-		// Store the email recipients
+		// Store the email recipients.
 		foreach ( $email_recipients as $key => $recipients ) {
 			foreach ( $recipients as $recipient ) {
 				update_post_meta( $post_id, 'ec_' . $key, $phpmailer->addrFormat( $recipient ) );
@@ -127,7 +126,7 @@ class EC_Email_Catcher {
 	/**
 	 * Prevent the email sending by clearing the mailer data.
 	 *
-	 * @param  PHPMailer &$phpmailer
+	 * @param  PHPMailer $phpmailer instance.
 	 * @return void
 	 */
 	public function prevent_email( &$phpmailer ) {
@@ -147,14 +146,14 @@ class EC_Email_Catcher {
 	public function enqueue_scripts( $hook ) {
 		global $post_type;
 
-		if ( $post_type !== self::POST_TYPE ) {
+		if ( self::POST_TYPE !== $post_type ) {
 			return;
 		}
 
-		// Post edit screen scripts
-		if ( $hook === 'post.php' ) {
-			wp_enqueue_script( 'ec-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ) );
-			wp_enqueue_style( 'ec-style', $this->plugin_url( 'css/style.css' ) );
+		// Post edit screen scripts.
+		if ( 'post.php' === $hook ) {
+			wp_enqueue_script( 'ec-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ), '1.0.0', false );
+			wp_enqueue_style( 'ec-style', $this->plugin_url( 'css/style.css' ), array(), '1.0.0' );
 		}
 	}
 
@@ -164,38 +163,44 @@ class EC_Email_Catcher {
 	 * @return void
 	 */
 	public function register_post_type() {
-		$labels = apply_filters( 'ec_post_type_labels', array(
-			'name'               => _x( 'Emails',  'post type general',    'email-catcher' ),
-			'singular_name'      => _x( 'Email',   'post type singular',   'email-catcher' ),
-			'menu_name'          => _x( 'Email Catcher', 'admin menu',     'email-catcher' ),
-			'name_admin_bar'     => _x( 'Email',   'add new on admin bar', 'email-catcher' ),
-			'edit_item'          => __( 'View Email',                      'email-catcher' ),
-			'view_item'          => __( 'View Email',                      'email-catcher' ),
-			'all_items'          => __( 'All Emails',                      'email-catcher' ),
-			'search_items'       => __( 'Search Emails',                   'email-catcher' ),
-			'not_found'          => __( 'No emails found.',                'email-catcher' ),
-			'not_found_in_trash' => __( 'No emails found in Trash.',       'email-catcher' )
-		) );
+		$labels = apply_filters(
+			'ec_post_type_labels',
+			array(
+				'name'               => _x( 'Emails',  'post type general',    'email-catcher' ),
+				'singular_name'      => _x( 'Email',   'post type singular',   'email-catcher' ),
+				'menu_name'          => _x( 'Email Catcher', 'admin menu',     'email-catcher' ),
+				'name_admin_bar'     => _x( 'Email',   'add new on admin bar', 'email-catcher' ),
+				'edit_item'          => __( 'View Email',                      'email-catcher' ),
+				'view_item'          => __( 'View Email',                      'email-catcher' ),
+				'all_items'          => __( 'All Emails',                      'email-catcher' ),
+				'search_items'       => __( 'Search Emails',                   'email-catcher' ),
+				'not_found'          => __( 'No emails found.',                'email-catcher' ),
+				'not_found_in_trash' => __( 'No emails found in Trash.',       'email-catcher' ),
+			)
+		);
 
-		$args = apply_filters( 'ec_post_type_args', array(
-			// Restrict to administrators only
-			'capabilities'    => array(
-				'edit_post'          => 'manage_options',
-				'read_post'          => 'manage_options',
-				'delete_post'        => 'manage_options',
-				'edit_posts'         => 'manage_options',
-				'edit_others_posts'  => 'manage_options',
-				'delete_posts'       => 'manage_options',
-				'publish_posts'      => 'manage_options',
-				'read_private_posts' => 'manage_options',
-				'create_posts'       => is_multisite() ? 'do_not_allow' : false, # disable create new post screen
-			),
-			'menu_icon'       => 'dashicons-email-alt',
-			'labels'          => $labels,
-			'show_ui'         => true,
-			'rewrite'         => false,
-			'supports'        => array( '' ),
-		) );
+		$args = apply_filters(
+			'ec_post_type_args',
+			array(
+				// Restrict to administrators only.
+				'capabilities' => array(
+					'edit_post'          => 'manage_options',
+					'read_post'          => 'manage_options',
+					'delete_post'        => 'manage_options',
+					'edit_posts'         => 'manage_options',
+					'edit_others_posts'  => 'manage_options',
+					'delete_posts'       => 'manage_options',
+					'publish_posts'      => 'manage_options',
+					'read_private_posts' => 'manage_options',
+					'create_posts'       => is_multisite() ? 'do_not_allow' : false, // Disable create new post screen.
+				),
+				'menu_icon'    => 'dashicons-email-alt',
+				'labels'       => $labels,
+				'show_ui'      => true,
+				'rewrite'      => false,
+				'supports'     => array( '' ),
+			)
+		);
 
 		register_post_type( self::POST_TYPE, $args );
 	}
@@ -220,7 +225,7 @@ class EC_Email_Catcher {
 		foreach ( $meta_boxes as $type => $name ) {
 			$has_value = call_user_func( 'ec_get_' . $type, $post->ID );
 
-			if ( !$has_value ) {
+			if ( ! $has_value ) {
 				continue;
 			}
 
@@ -231,9 +236,7 @@ class EC_Email_Catcher {
 				self::POST_TYPE,
 				'normal',
 				'default',
-				array(
-					'type' => $type
-				)
+				array( 'type' => $type )
 			);
 		}
 	}
@@ -246,7 +249,7 @@ class EC_Email_Catcher {
 	 * @return void
 	 */
 	public function print_meta_box( $post, $metabox ) {
-		$type = $metabox[ 'args' ][ 'type' ];
+		$type = $metabox['args']['type'];
 
 		call_user_func( 'ec_print_' . $type, $post->ID );
 	}
@@ -259,10 +262,10 @@ class EC_Email_Catcher {
 	public function register_settings_menu() {
 		add_submenu_page(
 			'edit.php?post_type=' . self::POST_TYPE,
-			__('Email Catcher Settings', 'email-catcher'),
-			__('Settings', 'email-catcher'),
+			__( 'Email Catcher Settings', 'email-catcher' ),
+			__( 'Settings', 'email-catcher' ),
 			'manage_options',
-			'settings' ,
+			'settings',
 			array( $this, 'settings_menu_page' )
 		);
 	}
@@ -275,7 +278,7 @@ class EC_Email_Catcher {
 	public function register_settings() {
 		$sections = array(
 			array(
-				'id' => 'ec_settings',
+				'id'    => 'ec_settings',
 				'title' => '',
 			),
 		);
@@ -290,8 +293,8 @@ class EC_Email_Catcher {
 					'default' => 'no',
 					'options' => array(
 						'yes' => 'Yes',
-						'no'  => 'No'
-					)
+						'no'  => 'No',
+					),
 				),
 				array(
 					'name'    => 'uninstall',
@@ -301,17 +304,17 @@ class EC_Email_Catcher {
 					'default' => 'no',
 					'options' => array(
 						'yes' => 'Yes',
-						'no'  => 'No'
-					)
+						'no'  => 'No',
+					),
 				),
 			),
 		);
 
-		// Set the settings
+		// Set the settings.
 		$this->settings_api->set_sections( $sections );
 		$this->settings_api->set_fields( $fields );
 
-		// Initialize settings
+		// Initialize settings.
 		$this->settings_api->admin_init();
 	}
 
@@ -323,7 +326,7 @@ class EC_Email_Catcher {
 	public function settings_menu_page() {
 		?>
 		<div class="wrap">
-			<h1><?php _e('Email Catcher Settings', 'email-catcher'); ?></h1>
+			<h1><?php esc_html_e( 'Email Catcher Settings', 'email-catcher' ); ?></h1>
 			<?php $this->settings_api->show_forms(); ?>
 		</div>
 		<?php
@@ -349,13 +352,13 @@ class EC_Email_Catcher {
 	 * @return array $columns
 	 */
 	public function add_columns( $columns ) {
-		$columns[ 'from' ]     = __( 'From',     'email-catcher' );
-		$columns[ 'to' ]       = __( 'To',       'email-catcher' );
+		$columns['from'] = __( 'From', 'email-catcher' );
+		$columns['to']   = __( 'To',   'email-catcher' );
 
-		// Make the date column last
-		$date_column = $columns[ 'date'] ;
-		unset( $columns[ 'date' ] );
-		$columns[ 'date' ] = $date_column;
+		// Make the date column last.
+		$date_column = $columns['date'];
+		unset( $columns['date'] );
+		$columns['date'] = $date_column;
 
 		return $columns;
 	}
@@ -367,7 +370,7 @@ class EC_Email_Catcher {
 	 * @return array $links
 	 */
 	public function add_action_links( $links ) {
-		$links[ 'settings' ] = '<a href="' . admin_url( 'edit.php?post_type=' . self::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings' ) . '</a>';
+		$links['settings'] = '<a href="' . admin_url( 'edit.php?post_type=' . self::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings', 'email-catcher' ) . '</a>';
 
 		return $links;
 	}
@@ -376,7 +379,7 @@ class EC_Email_Catcher {
 	 * Retrieves the absolute URL to the plugins directory (without the trailing slash) or,
 	 * when using the $file argument, to a specific file under that directory.
 	 *
-	 * @param  string $file relative to the plugin path
+	 * @param  string $file Relative to the plugin path.
 	 * @return string absolute URL
 	 */
 	public function plugin_url( $file = '' ) {
@@ -394,58 +397,6 @@ class EC_Email_Catcher {
 	}
 
 	/**
-	 * Returns all meta key values from all posts.
-	 *
-	 * @param  string $meta_key
-	 * @param  string $post_type
-	 * @param  string $post_status
-	 * @global $wpdb
-	 * @return array
-	 */
-	public function get_meta_values( $meta_key, $post_type = self::POST_TYPE, $post_status = null ) {
-		global $wpdb;
-
-		$query = $wpdb->prepare(
-			"
-			SELECT
-				DISTINCT( pm.meta_value )
-			FROM
-				$wpdb->posts AS p
-			INNER JOIN
-				$wpdb->postmeta AS pm
-			ON
-				p.ID = pm.post_id
-			WHERE
-				pm.meta_key = %s
-			AND
-				p.post_type = %s
-			",
-			$meta_key,
-			$post_type
-		);
-
-		if ( $post_status ) {
-			$query .= $wpdb->prepare(
-				"
-				AND
-					p.post_status = %s
-				",
-				$post_status
-			);
-		} else {
-			$query .= $wpdb->prepare(
-				"
-				AND
-					p.post_status <> %s
-				",
-				'trash'
-			);
-		}
-
-		return $wpdb->get_col( $query );
-	}
-
-	/**
 	 * Removes all traces of the plugin if the "uninstall" option is enabled.
 	 *
 	 * @see    register_uninstall_hook() in the main file
@@ -455,26 +406,26 @@ class EC_Email_Catcher {
 		$email_catcher = ec_email_catcher();
 		$uninstall     = $email_catcher->settings_api->get_option( 'uninstall' );
 
-		// Check if uninstall is enabled and the user permissions
-		if ( $uninstall !== 'yes' || !current_user_can( 'activate_plugins' ) ) {
+		// Check if uninstall is enabled and the user permissions.
+		if ( 'yes' !== $uninstall || ! current_user_can( 'activate_plugins' ) ) {
 			return;
 		}
 
-		// Remove all stored email posts
-		$emails = get_posts( array(
-			'post_type'      => self::POST_TYPE,
-			'post_status'    => array( 'any', 'trash', 'auto-draft' ),
-			'posts_per_page' => -1,
-		) );
+		// Remove all stored email posts.
+		$emails = get_posts(
+			array(
+				'post_type'      => self::POST_TYPE,
+				'post_status'    => array( 'any', 'trash', 'auto-draft' ),
+				'posts_per_page' => -1,
+			)
+		);
 
 		foreach ( $emails as $email ) {
 			wp_delete_post( $email->ID, true );
 		}
 
-		// Remove plugin options
+		// Remove plugin options.
 		delete_site_option( 'ec_settings' );
 	}
 
 } // Email_Catcher
-
-endif;

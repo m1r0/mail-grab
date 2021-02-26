@@ -10,7 +10,7 @@
 
 	<!-- Files -->
 	<file>.</file>
-	<exclude-pattern>src/class-ec-settings-api.php</exclude-pattern>
+	<exclude-pattern>src/class-emc-settings-api.php</exclude-pattern>
 
 	<!-- Rules -->
 	<!-- https://github.com/PHPCompatibility/PHPCompatibilityWP -->
@@ -26,7 +26,7 @@
 
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
-			<property name="prefixes" type="array" value="ec"/>
+			<property name="prefixes" type="array" value="emc"/>
 		</properties>
 	</rule>
 

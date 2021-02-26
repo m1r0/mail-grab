@@ -13,16 +13,16 @@
 defined( 'ABSPATH' ) || exit;
 
 // Constants.
-define( 'EC_PLUGIN_DIR',      plugin_dir_path( __FILE__ ) );
-define( 'EC_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'EMC_PLUGIN_DIR',      plugin_dir_path( __FILE__ ) );
+define( 'EMC_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Includes.
-require_once EC_PLUGIN_DIR . 'src/class-ec-email-catcher.php';
-require_once EC_PLUGIN_DIR . 'src/class-ec-settings-api.php';
-require_once EC_PLUGIN_DIR . 'src/functions.php';
+require_once EMC_PLUGIN_DIR . 'src/class-emc-email-catcher.php';
+require_once EMC_PLUGIN_DIR . 'src/class-emc-settings-api.php';
+require_once EMC_PLUGIN_DIR . 'src/functions.php';
 
 // Hooks.
-register_uninstall_hook( EC_PLUGIN_BASENAME, array( 'EC_Email_Catcher', 'uninstall' ) );
+register_uninstall_hook( EMC_PLUGIN_BASENAME, array( 'EMC_Email_Catcher', 'uninstall' ) );
 
 // Initialization.
-add_action( 'plugins_loaded', 'ec_email_catcher' );
+add_action( 'plugins_loaded', 'EMC_Email_Catcher' );

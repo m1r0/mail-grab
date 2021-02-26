@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-if ( ! function_exists( 'ec_email_catcher' ) ) :
+if ( ! function_exists( 'emc_email_catcher' ) ) :
 
 	/**
 	 * The main function responsible for returning the Email_Catcher instance.
@@ -15,16 +15,16 @@ if ( ! function_exists( 'ec_email_catcher' ) ) :
 	 * Use this function like you would a global variable, except without needing
 	 * to declare the global.
 	 *
-	 * @return  EC_Email_Catcher instance
+	 * @return  EMC_Email_Catcher instance
 	 */
-	function ec_email_catcher() {
-		return EC_Email_Catcher::instance();
+	function emc_email_catcher() {
+		return EMC_Email_Catcher::instance();
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_get_meta' ) ) :
+if ( ! function_exists( 'emc_get_meta' ) ) :
 
 	/**
 	 * Get an email post meta field.
@@ -35,10 +35,10 @@ if ( ! function_exists( 'ec_get_meta' ) ) :
 	 * @return mixed  Will be an array if $single is false. Will be value of meta data
 	 *                field if $single is true.
 	 */
-	function ec_get_meta( $post_id, $key, $single = false ) {
-		$value = get_post_meta( $post_id, 'ec_' . $key, $single );
-		$value = apply_filters( 'ec_get_' . $key, $value, $post_id );
-		$value = apply_filters( 'ec_get_meta', $value, $post_id, $key );
+	function emc_get_meta( $post_id, $key, $single = false ) {
+		$value = get_post_meta( $post_id, 'emc_' . $key, $single );
+		$value = apply_filters( 'emc_get_' . $key, $value, $post_id );
+		$value = apply_filters( 'emc_get_meta', $value, $post_id, $key );
 
 		return $value;
 	}
@@ -46,7 +46,7 @@ if ( ! function_exists( 'ec_get_meta' ) ) :
 endif;
 
 
-if ( ! function_exists( 'ec_print_meta' ) ) :
+if ( ! function_exists( 'emc_print_meta' ) ) :
 
 	/**
 	 * Print an email post meta field.
@@ -57,8 +57,8 @@ if ( ! function_exists( 'ec_print_meta' ) ) :
 	 * @param  bool   $echo    Print or return the output. Default print.
 	 * @return mixed
 	 */
-	function ec_print_meta( $post_id, $key, $single = false, $echo = true ) {
-		$value = ec_get_meta( $post_id, $key, $single );
+	function emc_print_meta( $post_id, $key, $single = false, $echo = true ) {
+		$value = emc_get_meta( $post_id, $key, $single );
 
 		if ( $single ) {
 			$output = $value;
@@ -66,8 +66,8 @@ if ( ! function_exists( 'ec_print_meta' ) ) :
 			$output = nl2br( implode( "\n", $value ) );
 		}
 
-		$output = apply_filters( 'ec_print_' . $key, $output, $post_id );
-		$output = apply_filters( 'ec_print_meta', $output, $post_id, $key );
+		$output = apply_filters( 'emc_print_' . $key, $output, $post_id );
+		$output = apply_filters( 'emc_print_meta', $output, $post_id, $key );
 
 		if ( ! $echo ) {
 			return $output;
@@ -79,7 +79,7 @@ if ( ! function_exists( 'ec_print_meta' ) ) :
 endif;
 
 
-if ( ! function_exists( 'ec_get_subject' ) ) :
+if ( ! function_exists( 'emc_get_subject' ) ) :
 
 	/**
 	 * Get the email subject.
@@ -87,14 +87,14 @@ if ( ! function_exists( 'ec_get_subject' ) ) :
 	 * @param  int $post_id Post ID.
 	 * @return string
 	 */
-	function ec_get_subject( $post_id ) {
+	function emc_get_subject( $post_id ) {
 		return get_the_title( $post_id );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_print_subject' ) ) :
+if ( ! function_exists( 'emc_print_subject' ) ) :
 
 	/**
 	 * Print the email subject.
@@ -103,8 +103,8 @@ if ( ! function_exists( 'ec_print_subject' ) ) :
 	 * @param  bool $echo    Print or return the output. Default print.
 	 * @return mixed
 	 */
-	function ec_print_subject( $post_id, $echo = true ) {
-		$output = ec_get_subject( $post_id );
+	function emc_print_subject( $post_id, $echo = true ) {
+		$output = emc_get_subject( $post_id );
 
 		if ( ! $echo ) {
 			return $output;
@@ -116,7 +116,7 @@ if ( ! function_exists( 'ec_print_subject' ) ) :
 endif;
 
 
-if ( ! function_exists( 'ec_get_from' ) ) :
+if ( ! function_exists( 'emc_get_from' ) ) :
 
 	/**
 	 * Get the email "From" address.
@@ -124,14 +124,14 @@ if ( ! function_exists( 'ec_get_from' ) ) :
 	 * @param  int $post_id Post ID.
 	 * @return string
 	 */
-	function ec_get_from( $post_id ) {
-		return ec_get_meta( $post_id, 'from', true );
+	function emc_get_from( $post_id ) {
+		return emc_get_meta( $post_id, 'from', true );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_print_from' ) ) :
+if ( ! function_exists( 'emc_print_from' ) ) :
 
 	/**
 	 * Print the email "From" address.
@@ -140,14 +140,14 @@ if ( ! function_exists( 'ec_print_from' ) ) :
 	 * @param  bool $echo    Print or return the output. Default print.
 	 * @return mixed
 	 */
-	function ec_print_from( $post_id, $echo = true ) {
-		return ec_print_meta( $post_id, 'from', true, $echo );
+	function emc_print_from( $post_id, $echo = true ) {
+		return emc_print_meta( $post_id, 'from', true, $echo );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_get_to' ) ) :
+if ( ! function_exists( 'emc_get_to' ) ) :
 
 	/**
 	 * Get the email "To" recipients.
@@ -155,14 +155,14 @@ if ( ! function_exists( 'ec_get_to' ) ) :
 	 * @param  int $post_id Post ID.
 	 * @return array
 	 */
-	function ec_get_to( $post_id ) {
-		return ec_get_meta( $post_id, 'to', false );
+	function emc_get_to( $post_id ) {
+		return emc_get_meta( $post_id, 'to', false );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_print_to' ) ) :
+if ( ! function_exists( 'emc_print_to' ) ) :
 
 	/**
 	 * Print the email "To" recipients.
@@ -171,14 +171,14 @@ if ( ! function_exists( 'ec_print_to' ) ) :
 	 * @param  bool $echo    Print or return the output. Default print.
 	 * @return mixed
 	 */
-	function ec_print_to( $post_id, $echo = true ) {
-		return ec_print_meta( $post_id, 'to', false, $echo );
+	function emc_print_to( $post_id, $echo = true ) {
+		return emc_print_meta( $post_id, 'to', false, $echo );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_get_cc' ) ) :
+if ( ! function_exists( 'emc_get_cc' ) ) :
 
 	/**
 	 * Get the email "CC" recipients.
@@ -186,14 +186,14 @@ if ( ! function_exists( 'ec_get_cc' ) ) :
 	 * @param  int $post_id Post ID.
 	 * @return array
 	 */
-	function ec_get_cc( $post_id ) {
-		return ec_get_meta( $post_id, 'cc', false );
+	function emc_get_cc( $post_id ) {
+		return emc_get_meta( $post_id, 'cc', false );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_print_cc' ) ) :
+if ( ! function_exists( 'emc_print_cc' ) ) :
 
 	/**
 	 * Print the email "CC" recipients.
@@ -202,14 +202,14 @@ if ( ! function_exists( 'ec_print_cc' ) ) :
 	 * @param  bool $echo    Print or return the output. Default print.
 	 * @return mixed
 	 */
-	function ec_print_cc( $post_id, $echo = true ) {
-		return ec_print_meta( $post_id, 'cc', false, $echo );
+	function emc_print_cc( $post_id, $echo = true ) {
+		return emc_print_meta( $post_id, 'cc', false, $echo );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_get_bcc' ) ) :
+if ( ! function_exists( 'emc_get_bcc' ) ) :
 
 	/**
 	 * Get the email "BCC" recipients.
@@ -217,14 +217,14 @@ if ( ! function_exists( 'ec_get_bcc' ) ) :
 	 * @param  int $post_id Post ID.
 	 * @return array
 	 */
-	function ec_get_bcc( $post_id ) {
-		return ec_get_meta( $post_id, 'bcc', false );
+	function emc_get_bcc( $post_id ) {
+		return emc_get_meta( $post_id, 'bcc', false );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_print_bcc' ) ) :
+if ( ! function_exists( 'emc_print_bcc' ) ) :
 
 	/**
 	 * Print the email "BCC" recipients.
@@ -233,14 +233,14 @@ if ( ! function_exists( 'ec_print_bcc' ) ) :
 	 * @param  bool $echo    Print or return the output. Default print.
 	 * @return mixed
 	 */
-	function ec_print_bcc( $post_id, $echo = true ) {
-		return ec_print_meta( $post_id, 'bcc', false, $echo );
+	function emc_print_bcc( $post_id, $echo = true ) {
+		return emc_print_meta( $post_id, 'bcc', false, $echo );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_get_reply_to' ) ) :
+if ( ! function_exists( 'emc_get_reply_to' ) ) :
 
 	/**
 	 * Get the email "Reply To" recipients.
@@ -248,14 +248,14 @@ if ( ! function_exists( 'ec_get_reply_to' ) ) :
 	 * @param  int $post_id Post ID.
 	 * @return array
 	 */
-	function ec_get_reply_to( $post_id ) {
-		return ec_get_meta( $post_id, 'reply_to', false );
+	function emc_get_reply_to( $post_id ) {
+		return emc_get_meta( $post_id, 'reply_to', false );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_print_reply_to' ) ) :
+if ( ! function_exists( 'emc_print_reply_to' ) ) :
 
 	/**
 	 * Print the email "Reply To" recipients.
@@ -264,14 +264,14 @@ if ( ! function_exists( 'ec_print_reply_to' ) ) :
 	 * @param  bool $echo    Print or return the output. Default print.
 	 * @return mixed
 	 */
-	function ec_print_reply_to( $post_id, $echo = true ) {
-		return ec_print_meta( $post_id, 'reply_to', false, $echo );
+	function emc_print_reply_to( $post_id, $echo = true ) {
+		return emc_print_meta( $post_id, 'reply_to', false, $echo );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_get_body' ) ) :
+if ( ! function_exists( 'emc_get_body' ) ) :
 
 	/**
 	 * Get the email body.
@@ -279,14 +279,14 @@ if ( ! function_exists( 'ec_get_body' ) ) :
 	 * @param  int $post_id Post ID.
 	 * @return string
 	 */
-	function ec_get_body( $post_id ) {
-		return ec_get_meta( $post_id, 'body', true );
+	function emc_get_body( $post_id ) {
+		return emc_get_meta( $post_id, 'body', true );
 	}
 
 endif;
 
 
-if ( ! function_exists( 'ec_print_body' ) ) :
+if ( ! function_exists( 'emc_print_body' ) ) :
 
 	/**
 	 * Print the email body.
@@ -296,11 +296,11 @@ if ( ! function_exists( 'ec_print_body' ) ) :
 	 * @param  bool $echo    Print or return the output. Default print.
 	 * @return mixed
 	 */
-	function ec_print_body( $post_id, $echo = true ) {
-		$is_html = ec_is_html( $post_id );
+	function emc_print_body( $post_id, $echo = true ) {
+		$is_html = emc_is_html( $post_id );
 
 		if ( $is_html ) {
-			$email_catcher = ec_email_catcher();
+			$email_catcher = emc_email_catcher();
 
 			$api_url = $email_catcher->api_url(
 				array(
@@ -309,13 +309,13 @@ if ( ! function_exists( 'ec_print_body' ) ) :
 				)
 			);
 
-			$output = '<iframe src="' . $api_url . '" class="ec-iframe" sandbox="allow-same-origin"></iframe>';
+			$output = '<iframe src="' . $api_url . '" class="emc-iframe" sandbox="allow-same-origin"></iframe>';
 		} else {
-			$body   = ec_get_body( $post_id );
+			$body   = emc_get_body( $post_id );
 			$output = nl2br( $body );
 		}
 
-		$output = apply_filters( 'ec_print_body', $output, $post_id, $is_html );
+		$output = apply_filters( 'emc_print_body', $output, $post_id, $is_html );
 
 		if ( ! $echo ) {
 			return $output;
@@ -327,7 +327,7 @@ if ( ! function_exists( 'ec_print_body' ) ) :
 endif;
 
 
-if ( ! function_exists( 'ec_is_html' ) ) :
+if ( ! function_exists( 'emc_is_html' ) ) :
 
 	/**
 	 * Checks if the email content type is HTML.
@@ -335,11 +335,11 @@ if ( ! function_exists( 'ec_is_html' ) ) :
 	 * @param  int $post_id Post ID.
 	 * @return bool
 	 */
-	function ec_is_html( $post_id ) {
-		$content_type = ec_get_meta( $post_id, 'content_type', true );
+	function emc_is_html( $post_id ) {
+		$content_type = emc_get_meta( $post_id, 'content_type', true );
 		$is_html      = 'text/html' === $content_type;
 
-		return apply_filters( 'ec_is_html', $is_html, $post_id, $content_type );
+		return apply_filters( 'emc_is_html', $is_html, $post_id, $content_type );
 	}
 
 endif;

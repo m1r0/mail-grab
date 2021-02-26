@@ -5,24 +5,24 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Main Email Catcher class
  */
-class EC_Email_Catcher {
+class EMC_Email_Catcher {
 
 	/**
 	 * The email catcher post type.
 	 */
-	const POST_TYPE = 'ec_email';
+	const POST_TYPE = 'emc_email';
 
 	/**
 	 * Settings API.
 	 *
-	 * @var EC_Settings_API
+	 * @var EMC_Settings_API
 	 */
 	private $settings_api;
 
 	/**
 	 * Singleton implementation.
 	 *
-	 * @return EC_Email_Catcher
+	 * @return EMC_Email_Catcher
 	 */
 	public static function instance() {
 		static $instance;
@@ -48,22 +48,22 @@ class EC_Email_Catcher {
 	 * @return void
 	 */
 	private function setup() {
-		$this->settings_api = new EC_Settings_API();
+		$this->settings_api = new EMC_Settings_API();
 
 		// Actions.
-		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
-		add_action( 'ec_store_email',                                       array( $this, 'store_email' ),            10, 1 );
-		add_action( 'ec_prevent_email',                                     array( $this, 'prevent_email' ),          10, 1 );
+		add_action( 'phpmailer_init',                                     array( $this, 'catch_email' ),          1000, 1 );
+		add_action( 'emc_store_email',                                    array( $this, 'store_email' ),            10, 1 );
+		add_action( 'emc_prevent_email',                                  array( $this, 'prevent_email' ),          10, 1 );
 
-		add_action( 'init',                                                 array( $this, 'register_post_type' ),     10, 0 );
-		add_action( 'admin_enqueue_scripts',                                array( $this, 'enqueue_scripts' ),        10, 1 );
-		add_action( 'admin_menu',                                           array( $this, 'register_settings_menu' ), 10, 0 );
-		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
-		add_action( 'add_meta_boxes_' . self::POST_TYPE,                    array( $this, 'register_meta_boxes' ),    10, 1 );
-		add_filter( 'plugin_action_links_' . EC_PLUGIN_BASENAME,            array( $this, 'add_action_links' ),       10, 1 );
+		add_action( 'init',                                               array( $this, 'register_post_type' ),     10, 0 );
+		add_action( 'admin_enqueue_scripts',                              array( $this, 'enqueue_scripts' ),        10, 1 );
+		add_action( 'admin_menu',                                         array( $this, 'register_settings_menu' ), 10, 0 );
+		add_action( 'admin_init',                                         array( $this, 'register_settings' ),      10, 0 );
+		add_action( 'add_meta_boxes_' . self::POST_TYPE,                  array( $this, 'register_meta_boxes' ),    10, 1 );
+		add_filter( 'plugin_action_links_' . EMC_PLUGIN_BASENAME,         array( $this, 'add_action_links' ),       10, 1 );
 
-		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',         array( $this, 'add_columns' ),            10, 1 );
-		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column',   array( $this, 'print_column' ),           10, 2 );
+		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',       array( $this, 'add_columns' ),            10, 1 );
+		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
 	}
 
 	/**
@@ -74,12 +74,12 @@ class EC_Email_Catcher {
 	 */
 	public function catch_email( &$phpmailer ) {
 		// Store the email.
-		do_action( 'ec_store_email', $phpmailer );
+		do_action( 'emc_store_email', $phpmailer );
 
 		// Prevent the email sending if the option is enabled.
-		$prevent_email = $this->settings_api->get_option( 'prevent_email' ) === 'yes';
+		$prevent_email = $this->settings_api->get_option( 'prevent_email', 'emc_settings' ) === 'yes';
 		if ( $prevent_email ) {
-			do_action_ref_array( 'ec_prevent_email', array( &$phpmailer ) );
+			do_action_ref_array( 'emc_prevent_email', array( &$phpmailer ) );
 		}
 	}
 
@@ -102,9 +102,9 @@ class EC_Email_Catcher {
 			return $post_id;
 		}
 
-		update_post_meta( $post_id, 'ec_body',         $phpmailer->Body );
-		update_post_meta( $post_id, 'ec_content_type', $phpmailer->ContentType );
-		update_post_meta( $post_id, 'ec_from',         $phpmailer->addrFormat( array( $phpmailer->From, $phpmailer->FromName ) ) );
+		update_post_meta( $post_id, 'emc_body',         $phpmailer->Body );
+		update_post_meta( $post_id, 'emc_content_type', $phpmailer->ContentType );
+		update_post_meta( $post_id, 'emc_from',         $phpmailer->addrFormat( array( $phpmailer->From, $phpmailer->FromName ) ) );
 
 		$email_recipients = array(
 			'to'       => $phpmailer->getToAddresses(),
@@ -116,7 +116,7 @@ class EC_Email_Catcher {
 		// Store the email recipients.
 		foreach ( $email_recipients as $key => $recipients ) {
 			foreach ( $recipients as $recipient ) {
-				update_post_meta( $post_id, 'ec_' . $key, $phpmailer->addrFormat( $recipient ) );
+				update_post_meta( $post_id, 'emc_' . $key, $phpmailer->addrFormat( $recipient ) );
 			}
 		}
 
@@ -152,8 +152,8 @@ class EC_Email_Catcher {
 
 		// Post edit screen scripts.
 		if ( 'post.php' === $hook ) {
-			wp_enqueue_script( 'ec-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ), '1.0.0', false );
-			wp_enqueue_style( 'ec-style', $this->plugin_url( 'css/style.css' ), array(), '1.0.0' );
+			wp_enqueue_script( 'emc-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ), '1.0.0', false );
+			wp_enqueue_style( 'emc-style', $this->plugin_url( 'css/style.css' ), array(), '1.0.0' );
 		}
 	}
 
@@ -164,7 +164,7 @@ class EC_Email_Catcher {
 	 */
 	public function register_post_type() {
 		$labels = apply_filters(
-			'ec_post_type_labels',
+			'emc_post_type_labels',
 			array(
 				'name'               => _x( 'Emails',  'post type general',    'email-catcher' ),
 				'singular_name'      => _x( 'Email',   'post type singular',   'email-catcher' ),
@@ -180,7 +180,7 @@ class EC_Email_Catcher {
 		);
 
 		$args = apply_filters(
-			'ec_post_type_args',
+			'emc_post_type_args',
 			array(
 				// Restrict to administrators only.
 				'capabilities' => array(
@@ -223,14 +223,14 @@ class EC_Email_Catcher {
 		);
 
 		foreach ( $meta_boxes as $type => $name ) {
-			$has_value = call_user_func( 'ec_get_' . $type, $post->ID );
+			$has_value = call_user_func( 'emc_get_' . $type, $post->ID );
 
 			if ( ! $has_value ) {
 				continue;
 			}
 
 			add_meta_box(
-				'ec-email-' . $type,
+				'emc-email-' . $type,
 				$name,
 				array( $this, 'print_meta_box' ),
 				self::POST_TYPE,
@@ -251,7 +251,7 @@ class EC_Email_Catcher {
 	public function print_meta_box( $post, $metabox ) {
 		$type = $metabox['args']['type'];
 
-		call_user_func( 'ec_print_' . $type, $post->ID );
+		call_user_func( 'emc_print_' . $type, $post->ID );
 	}
 
 	/**
@@ -278,13 +278,13 @@ class EC_Email_Catcher {
 	public function register_settings() {
 		$sections = array(
 			array(
-				'id'    => 'ec_settings',
+				'id'    => 'emc_settings',
 				'title' => '',
 			),
 		);
 
 		$fields = array(
-			'ec_settings' => array(
+			'emc_settings' => array(
 				array(
 					'name'    => 'prevent_email',
 					'label'   => __( 'Prevent email sending', 'email-catcher' ),
@@ -340,8 +340,8 @@ class EC_Email_Catcher {
 	 * @return void
 	 */
 	public function print_column( $column, $post_id ) {
-		if ( function_exists( 'ec_print_' . $column ) ) {
-			echo call_user_func( 'ec_print_' . $column, $post_id, false );
+		if ( function_exists( 'emc_print_' . $column ) ) {
+			echo call_user_func( 'emc_print_' . $column, $post_id, false );
 		}
 	}
 
@@ -403,8 +403,8 @@ class EC_Email_Catcher {
 	 * @return void
 	 */
 	public static function uninstall() {
-		$email_catcher = ec_email_catcher();
-		$uninstall     = $email_catcher->settings_api->get_option( 'uninstall' );
+		$email_catcher = emc_email_catcher();
+		$uninstall     = $email_catcher->settings_api->get_option( 'uninstall', 'emc_settings' );
 
 		// Check if uninstall is enabled and the user permissions.
 		if ( 'yes' !== $uninstall || ! current_user_can( 'activate_plugins' ) ) {
@@ -425,7 +425,7 @@ class EC_Email_Catcher {
 		}
 
 		// Remove plugin options.
-		delete_site_option( 'ec_settings' );
+		delete_site_option( 'emc_settings' );
 	}
 
 } // Email_Catcher

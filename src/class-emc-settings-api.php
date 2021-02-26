@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * @link https://tareq.co Tareq Hasan
  * @example example/oop-example.php How to use the class
  */
-class EC_Settings_API {
+class EMC_Settings_API {
 
 	/**
 	 * settings sections array

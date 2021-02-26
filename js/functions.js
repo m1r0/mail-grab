@@ -1,5 +1,5 @@
 jQuery( function( $ ) {
-	$( '.ec-iframe' ).load( function() {
+	$( '.emc-iframe' ).load( function() {
 		$( this ).height( $( this ).contents().height() );
 	} );
 } );

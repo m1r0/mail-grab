@@ -64,6 +64,8 @@ class EMC_Email_Catcher {
 
 		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',       array( $this, 'add_columns' ),            10, 1 );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
+
+		add_action( 'rest_api_init',                                      array( $this, 'register_rest_routes' ),   10, 0 );
 	}
 
 	/**
@@ -387,13 +389,40 @@ class EMC_Email_Catcher {
 	}
 
 	/**
-	 * Retrieves the absolute URL to the API with the arguments applied.
+	 * Register the rest routes.
 	 *
-	 * @param  array $args
-	 * @return string absolute URL
+	 * @return void
 	 */
-	public function api_url( $args ) {
-		return add_query_arg( $args, $this->plugin_url( 'api.php' ) );
+	public function register_rest_routes() {
+		register_rest_route(
+			'email-catcher/v1',
+			'/emails/(?P<id>\d+)/body',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'rest_get_email_body_html' ),
+				'args'                => array(
+					'id' => array(
+						'validate_callback' => function( $param ) {
+							return is_numeric( $param );
+						},
+					),
+				),
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+	}
+
+	/**
+	 * Output the email body html.
+	 *
+	 * @param $data
+	 */
+	public function rest_get_email_body_html( $data ) {
+		header('Content-Type: text/html');
+
+		echo emc_get_body( $data['id'] );
 	}
 
 	/**

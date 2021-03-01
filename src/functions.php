@@ -300,16 +300,13 @@ if ( ! function_exists( 'emc_print_body' ) ) :
 		$is_html = emc_is_html( $post_id );
 
 		if ( $is_html ) {
-			$email_catcher = emc_email_catcher();
-
-			$api_url = $email_catcher->api_url(
-				array(
-					'request' => 'body',
-					'post_id' => $post_id,
-				)
+			$iframe_url = add_query_arg(
+				'_wpnonce',
+				wp_create_nonce( 'wp_rest' ),
+				rest_url("email-catcher/v1/emails/$post_id/body")
 			);
 
-			$output = '<iframe src="' . $api_url . '" class="emc-iframe" sandbox="allow-same-origin"></iframe>';
+			$output = '<iframe src="' . $iframe_url . '" class="emc-iframe" sandbox="allow-same-origin"></iframe>';
 		} else {
 			$body   = emc_get_body( $post_id );
 			$output = nl2br( $body );
@@ -321,7 +318,7 @@ if ( ! function_exists( 'emc_print_body' ) ) :
 			return $output;
 		}
 
-		echo esc_html( $output );
+		echo $output;
 	}
 
 endif;

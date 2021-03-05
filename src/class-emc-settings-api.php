@@ -27,12 +27,19 @@ class EMC_Settings_API {
 	 */
 	protected $settings_fields = array();
 
+	/**
+	 * Constructor.
+	 *
+	 * @return void
+	 */
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 	}
 
 	/**
 	 * Enqueue scripts and styles
+	 *
+	 * @return void
 	 */
 	function admin_enqueue_scripts() {
 		wp_enqueue_style( 'wp-color-picker' );

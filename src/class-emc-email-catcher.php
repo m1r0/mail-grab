@@ -17,7 +17,7 @@ class EMC_Email_Catcher {
 	 *
 	 * @var EMC_Settings_API
 	 */
-	private $settings_api;
+	protected $settings_api;
 
 	/**
 	 * Singleton implementation.
@@ -36,36 +36,36 @@ class EMC_Email_Catcher {
 	}
 
 	/**
-	 * Silence is golden.
+	 * Constructor.
 	 *
 	 * @return void
 	 */
-	private function __construct() {}
+	protected function __construct() {}
 
 	/**
 	 * Register actions, filters, etc...
 	 *
 	 * @return void
 	 */
-	private function setup() {
+	protected function setup() {
 		$this->settings_api = new EMC_Settings_API();
 
 		// Actions.
-		add_action( 'phpmailer_init',                                     array( $this, 'catch_email' ),          1000, 1 );
-		add_action( 'emc_store_email',                                    array( $this, 'store_email' ),            10, 1 );
-		add_action( 'emc_prevent_email',                                  array( $this, 'prevent_email' ),          10, 1 );
+		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
+		add_action( 'emc_store_email',                                      array( $this, 'store_email' ),            10, 1 );
+		add_action( 'emc_prevent_email',                                    array( $this, 'prevent_email' ),          10, 1 );
 
-		add_action( 'init',                                               array( $this, 'register_post_type' ),     10, 0 );
-		add_action( 'admin_enqueue_scripts',                              array( $this, 'enqueue_scripts' ),        10, 1 );
-		add_action( 'admin_menu',                                         array( $this, 'register_settings_menu' ), 10, 0 );
-		add_action( 'admin_init',                                         array( $this, 'register_settings' ),      10, 0 );
-		add_action( 'add_meta_boxes_' . self::POST_TYPE,                  array( $this, 'register_meta_boxes' ),    10, 1 );
-		add_filter( 'plugin_action_links_' . EMC_PLUGIN_BASENAME,         array( $this, 'add_action_links' ),       10, 1 );
+		add_action( 'init',                                                 array( $this, 'register_post_type' ),     10, 0 );
+		add_action( 'admin_enqueue_scripts',                                array( $this, 'enqueue_scripts' ),        10, 1 );
+		add_action( 'admin_menu',                                           array( $this, 'register_settings_menu' ), 10, 0 );
+		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
+		add_action( 'add_meta_boxes_' . static::POST_TYPE,                  array( $this, 'register_meta_boxes' ),    10, 1 );
+		add_filter( 'plugin_action_links_' . EMC_PLUGIN_BASENAME,           array( $this, 'add_action_links' ),       10, 1 );
 
-		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns',       array( $this, 'add_columns' ),            10, 1 );
-		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
+		add_filter( 'manage_' . static::POST_TYPE . '_posts_columns',       array( $this, 'add_columns' ),            10, 1 );
+		add_action( 'manage_' . static::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
 
-		add_action( 'rest_api_init',                                      array( $this, 'register_rest_routes' ),   10, 0 );
+		add_action( 'rest_api_init',                                        array( $this, 'register_rest_routes' ),   10, 0 );
 	}
 
 	/**
@@ -95,7 +95,7 @@ class EMC_Email_Catcher {
 		$post_id = wp_insert_post(
 			array(
 				'post_title'  => $phpmailer->Subject,
-				'post_type'   => self::POST_TYPE,
+				'post_type'   => static::POST_TYPE,
 				'post_status' => 'publish',
 			)
 		);
@@ -148,7 +148,7 @@ class EMC_Email_Catcher {
 	public function enqueue_scripts( $hook ) {
 		global $post_type;
 
-		if ( self::POST_TYPE !== $post_type ) {
+		if ( static::POST_TYPE !== $post_type ) {
 			return;
 		}
 
@@ -204,7 +204,7 @@ class EMC_Email_Catcher {
 			)
 		);
 
-		register_post_type( self::POST_TYPE, $args );
+		register_post_type( static::POST_TYPE, $args );
 	}
 
 	/**
@@ -235,7 +235,7 @@ class EMC_Email_Catcher {
 				'emc-email-' . $type,
 				$name,
 				array( $this, 'print_meta_box' ),
-				self::POST_TYPE,
+				static::POST_TYPE,
 				'normal',
 				'default',
 				array( 'type' => $type )
@@ -263,7 +263,7 @@ class EMC_Email_Catcher {
 	 */
 	public function register_settings_menu() {
 		add_submenu_page(
-			'edit.php?post_type=' . self::POST_TYPE,
+			'edit.php?post_type=' . static::POST_TYPE,
 			__( 'Email Catcher Settings', 'email-catcher' ),
 			__( 'Settings', 'email-catcher' ),
 			'manage_options',
@@ -372,7 +372,7 @@ class EMC_Email_Catcher {
 	 * @return array $links
 	 */
 	public function add_action_links( $links ) {
-		$links['settings'] = '<a href="' . admin_url( 'edit.php?post_type=' . self::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings', 'email-catcher' ) . '</a>';
+		$links['settings'] = '<a href="' . admin_url( 'edit.php?post_type=' . static::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings', 'email-catcher' ) . '</a>';
 
 		return $links;
 	}
@@ -420,7 +420,7 @@ class EMC_Email_Catcher {
 	 * @param $data
 	 */
 	public function rest_get_email_body_html( $data ) {
-		header('Content-Type: text/html');
+		header( 'Content-Type: text/html' );
 
 		echo emc_get_body( $data['id'] );
 	}
@@ -443,7 +443,7 @@ class EMC_Email_Catcher {
 		// Remove all stored email posts.
 		$emails = get_posts(
 			array(
-				'post_type'      => self::POST_TYPE,
+				'post_type'      => static::POST_TYPE,
 				'post_status'    => array( 'any', 'trash', 'auto-draft' ),
 				'posts_per_page' => -1,
 			)

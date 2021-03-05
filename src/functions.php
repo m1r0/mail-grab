@@ -303,13 +303,13 @@ if ( ! function_exists( 'emc_print_body' ) ) :
 			$iframe_url = add_query_arg(
 				'_wpnonce',
 				wp_create_nonce( 'wp_rest' ),
-				rest_url("email-catcher/v1/emails/$post_id/body")
+				rest_url( "email-catcher/v1/emails/$post_id/body" )
 			);
 
 			$output = '<iframe src="' . $iframe_url . '" class="emc-iframe" sandbox="allow-same-origin"></iframe>';
 		} else {
 			$body   = emc_get_body( $post_id );
-			$output = nl2br( $body );
+			$output = nl2br( esc_html( $body ) );
 		}
 
 		$output = apply_filters( 'emc_print_body', $output, $post_id, $is_html );

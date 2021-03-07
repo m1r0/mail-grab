@@ -94,9 +94,10 @@ class EMC_Email_Catcher {
 	public function store_email( $phpmailer ) {
 		$post_id = wp_insert_post(
 			array(
-				'post_title'  => $phpmailer->Subject,
-				'post_type'   => static::POST_TYPE,
-				'post_status' => 'publish',
+				'post_title'   => $phpmailer->Subject,
+				'post_content' => $phpmailer->Body,
+				'post_type'    => static::POST_TYPE,
+				'post_status'  => 'publish',
 			)
 		);
 
@@ -104,7 +105,6 @@ class EMC_Email_Catcher {
 			return $post_id;
 		}
 
-		update_post_meta( $post_id, 'emc_body',         $phpmailer->Body );
 		update_post_meta( $post_id, 'emc_content_type', $phpmailer->ContentType );
 		update_post_meta( $post_id, 'emc_from',         $phpmailer->addrFormat( array( $phpmailer->From, $phpmailer->FromName ) ) );
 

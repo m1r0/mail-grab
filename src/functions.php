@@ -280,7 +280,7 @@ if ( ! function_exists( 'emc_get_body' ) ) :
 	 * @return string
 	 */
 	function emc_get_body( $post_id ) {
-		return emc_get_meta( $post_id, 'body', true );
+		return get_the_content( null, false, $post_id );
 	}
 
 endif;

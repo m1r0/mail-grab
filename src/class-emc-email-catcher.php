@@ -423,6 +423,9 @@ class EMC_Email_Catcher {
 		header( 'Content-Type: text/html' );
 
 		echo emc_get_body( $data['id'] );
+
+		// We're done.
+		die();
 	}
 
 	/**

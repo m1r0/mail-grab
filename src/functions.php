@@ -306,7 +306,7 @@ if ( ! function_exists( 'emc_print_body' ) ) :
 				rest_url( "email-catcher/v1/emails/$post_id/body" )
 			);
 
-			$output = '<iframe src="' . $iframe_url . '" class="emc-iframe" sandbox="allow-same-origin"></iframe>';
+			$output = '<iframe src="' . $iframe_url . '" class="emc-iframe" sandbox="allow-popups-to-escape-sandbox allow-forms allow-pointer-lock allow-popups allow-presentation allow-orientation-lock allow-modals allow-same-origin"></iframe>';
 		} else {
 			$body   = emc_get_body( $post_id );
 			$output = nl2br( esc_html( $body ) );

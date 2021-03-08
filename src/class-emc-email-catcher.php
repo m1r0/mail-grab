@@ -118,7 +118,7 @@ class EMC_Email_Catcher {
 		// Store the email recipients.
 		foreach ( $email_recipients as $key => $recipients ) {
 			foreach ( $recipients as $recipient ) {
-				update_post_meta( $post_id, 'emc_' . $key, $phpmailer->addrFormat( $recipient ) );
+				add_post_meta( $post_id, 'emc_' . $key, $phpmailer->addrFormat( $recipient ) );
 			}
 		}
 
@@ -343,7 +343,7 @@ class EMC_Email_Catcher {
 	 */
 	public function print_column( $column, $post_id ) {
 		if ( function_exists( 'emc_print_' . $column ) ) {
-			echo call_user_func( 'emc_print_' . $column, $post_id, false );
+			call_user_func( 'emc_print_' . $column, $post_id );
 		}
 	}
 

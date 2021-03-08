@@ -63,7 +63,7 @@ if ( ! function_exists( 'emc_print_meta' ) ) :
 		if ( $single ) {
 			$output = $value;
 		} else {
-			$output = nl2br( implode( "\n", $value ) );
+			$output = implode( "\n", $value );
 		}
 
 		$output = apply_filters( 'emc_print_' . $key, $output, $post_id );
@@ -73,7 +73,7 @@ if ( ! function_exists( 'emc_print_meta' ) ) :
 			return $output;
 		}
 
-		echo esc_html( $output );
+		echo nl2br( esc_html( $output ) );
 	}
 
 endif;

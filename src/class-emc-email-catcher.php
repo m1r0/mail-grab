@@ -154,7 +154,7 @@ class EMC_Email_Catcher {
 
 		// Post edit screen scripts.
 		if ( 'post.php' === $hook ) {
-			wp_enqueue_script( 'emc-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ), '1.0.0', false );
+			wp_enqueue_script( 'emc-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ), '1.0.0', true );
 			wp_enqueue_style( 'emc-style', $this->plugin_url( 'css/style.css' ), array(), '1.0.0' );
 		}
 	}

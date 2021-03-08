@@ -1,5 +1,9 @@
 jQuery( function( $ ) {
-	$( '.emc-iframe' ).load( function() {
-		$( this ).height( $( this ).contents().height() );
+	$( window ).load( function() {
+		var $iframe = $( '.emc-iframe' );
+
+		$iframe.height(
+			$iframe.contents().height()
+		);
 	} );
 } );

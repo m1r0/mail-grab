@@ -1,4 +1,10 @@
 <?php
+/**
+ * Email Catcher Class
+ *
+ * @class EMC_Email_Catcher
+ * @package Email_Catcher
+ */
 
 defined( 'ABSPATH' ) || exit;
 
@@ -141,7 +147,7 @@ class EMC_Email_Catcher {
 	/**
 	 * Back-end scripts.
 	 *
-	 * @param  string $hook
+	 * @param  string $hook The current admin page.
 	 * @global $post_type
 	 * @return void
 	 */
@@ -210,7 +216,7 @@ class EMC_Email_Catcher {
 	/**
 	 * Register post type meta boxes.
 	 *
-	 * @param  WP_Post $post
+	 * @param  WP_Post $post Post object.
 	 * @return void
 	 */
 	public function register_meta_boxes( WP_Post $post ) {
@@ -246,8 +252,8 @@ class EMC_Email_Catcher {
 	/**
 	 * Print the post type meta box content.
 	 *
-	 * @param  object $post
-	 * @param  array  $metabox
+	 * @param  object $post    Post object.
+	 * @param  array  $metabox Metabox data.
 	 * @return void
 	 */
 	public function print_meta_box( $post, $metabox ) {
@@ -337,8 +343,8 @@ class EMC_Email_Catcher {
 	/**
 	 * Print the value for the columns.
 	 *
-	 * @param  string $column
-	 * @param  int    $post_id
+	 * @param  string $column  The name of the column to display.
+	 * @param  int    $post_id The current post ID.
 	 * @return void
 	 */
 	public function print_column( $column, $post_id ) {
@@ -350,7 +356,7 @@ class EMC_Email_Catcher {
 	/**
 	 * Add the post type columns.
 	 *
-	 * @param  array $columns
+	 * @param  array $columns An associative array of column headings.
 	 * @return array $columns
 	 */
 	public function add_columns( $columns ) {
@@ -368,7 +374,7 @@ class EMC_Email_Catcher {
 	/**
 	 * Add the plugin action links.
 	 *
-	 * @param  array $links
+	 * @param  array $links An array of plugin action links.
 	 * @return array $links
 	 */
 	public function add_action_links( $links ) {
@@ -417,12 +423,13 @@ class EMC_Email_Catcher {
 	/**
 	 * Output the email body html.
 	 *
-	 * @param $data
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return void
 	 */
-	public function rest_get_email_body_html( $data ) {
+	public function rest_get_email_body_html( $request ) {
 		header( 'Content-Type: text/html' );
 
-		echo emc_get_body( $data['id'] );
+		echo emc_get_body( $request['id'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// We're done.
 		die();

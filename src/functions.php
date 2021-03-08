@@ -65,10 +65,11 @@ if ( ! function_exists( 'emc_print_meta' ) ) :
 			$output = implode( "\n", $value );
 		}
 
+		$output = nl2br( esc_html( $output ) );
 		$output = apply_filters( 'emc_print_' . $key, $output, $post_id );
 		$output = apply_filters( 'emc_print_meta', $output, $post_id, $key );
 
-		echo nl2br( esc_html( $output ) );
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 endif;
@@ -94,7 +95,7 @@ if ( ! function_exists( 'emc_print_subject' ) ) :
 	/**
 	 * Print the email subject.
 	 *
-	 * @param  int  $post_id Post ID.
+	 * @param  int $post_id Post ID.
 	 * @return void
 	 */
 	function emc_print_subject( $post_id ) {
@@ -126,7 +127,7 @@ if ( ! function_exists( 'emc_print_from' ) ) :
 	/**
 	 * Print the email "From" address.
 	 *
-	 * @param  int  $post_id Post ID.
+	 * @param  int $post_id Post ID.
 	 * @return void
 	 */
 	function emc_print_from( $post_id ) {
@@ -156,7 +157,7 @@ if ( ! function_exists( 'emc_print_to' ) ) :
 	/**
 	 * Print the email "To" recipients.
 	 *
-	 * @param  int  $post_id Post ID.
+	 * @param  int $post_id Post ID.
 	 * @return void
 	 */
 	function emc_print_to( $post_id ) {
@@ -186,10 +187,10 @@ if ( ! function_exists( 'emc_print_cc' ) ) :
 	/**
 	 * Print the email "CC" recipients.
 	 *
-	 * @param  int  $post_id Post ID.
+	 * @param  int $post_id Post ID.
 	 * @return void
 	 */
-	function emc_print_cc( $post_id, $echo = true ) {
+	function emc_print_cc( $post_id ) {
 		emc_print_meta( $post_id, 'cc', false );
 	}
 
@@ -216,7 +217,7 @@ if ( ! function_exists( 'emc_print_bcc' ) ) :
 	/**
 	 * Print the email "BCC" recipients.
 	 *
-	 * @param  int  $post_id Post ID.
+	 * @param  int $post_id Post ID.
 	 * @return void
 	 */
 	function emc_print_bcc( $post_id ) {
@@ -246,7 +247,7 @@ if ( ! function_exists( 'emc_print_reply_to' ) ) :
 	/**
 	 * Print the email "Reply To" recipients.
 	 *
-	 * @param  int  $post_id Post ID.
+	 * @param  int $post_id Post ID.
 	 * @return void
 	 */
 	function emc_print_reply_to( $post_id ) {
@@ -277,7 +278,7 @@ if ( ! function_exists( 'emc_print_body' ) ) :
 	 * Print the email body.
 	 * If the email content type is HTML - use an iframe.
 	 *
-	 * @param  int  $post_id Post ID.
+	 * @param  int $post_id Post ID.
 	 * @return void
 	 */
 	function emc_print_body( $post_id ) {
@@ -302,7 +303,7 @@ if ( ! function_exists( 'emc_print_body' ) ) :
 
 		$output = apply_filters( 'emc_print_body', $output, $post_id, $is_html );
 
-		echo $output;
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 endif;

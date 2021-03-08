@@ -54,10 +54,9 @@ if ( ! function_exists( 'emc_print_meta' ) ) :
 	 * @param  int    $post_id Post ID.
 	 * @param  string $key     The meta key to retrieve.
 	 * @param  string $single  Optional. Whether to return a single value or an array. Default false.
-	 * @param  bool   $echo    Print or return the output. Default print.
-	 * @return mixed
+	 * @return void
 	 */
-	function emc_print_meta( $post_id, $key, $single = false, $echo = true ) {
+	function emc_print_meta( $post_id, $key, $single = false ) {
 		$value = emc_get_meta( $post_id, $key, $single );
 
 		if ( $single ) {
@@ -68,10 +67,6 @@ if ( ! function_exists( 'emc_print_meta' ) ) :
 
 		$output = apply_filters( 'emc_print_' . $key, $output, $post_id );
 		$output = apply_filters( 'emc_print_meta', $output, $post_id, $key );
-
-		if ( ! $echo ) {
-			return $output;
-		}
 
 		echo nl2br( esc_html( $output ) );
 	}
@@ -100,15 +95,10 @@ if ( ! function_exists( 'emc_print_subject' ) ) :
 	 * Print the email subject.
 	 *
 	 * @param  int  $post_id Post ID.
-	 * @param  bool $echo    Print or return the output. Default print.
-	 * @return mixed
+	 * @return void
 	 */
-	function emc_print_subject( $post_id, $echo = true ) {
+	function emc_print_subject( $post_id ) {
 		$output = emc_get_subject( $post_id );
-
-		if ( ! $echo ) {
-			return $output;
-		}
 
 		echo esc_html( $output );
 	}
@@ -137,11 +127,10 @@ if ( ! function_exists( 'emc_print_from' ) ) :
 	 * Print the email "From" address.
 	 *
 	 * @param  int  $post_id Post ID.
-	 * @param  bool $echo    Print or return the output. Default print.
-	 * @return mixed
+	 * @return void
 	 */
-	function emc_print_from( $post_id, $echo = true ) {
-		return emc_print_meta( $post_id, 'from', true, $echo );
+	function emc_print_from( $post_id ) {
+		emc_print_meta( $post_id, 'from', true );
 	}
 
 endif;
@@ -168,11 +157,10 @@ if ( ! function_exists( 'emc_print_to' ) ) :
 	 * Print the email "To" recipients.
 	 *
 	 * @param  int  $post_id Post ID.
-	 * @param  bool $echo    Print or return the output. Default print.
-	 * @return mixed
+	 * @return void
 	 */
-	function emc_print_to( $post_id, $echo = true ) {
-		return emc_print_meta( $post_id, 'to', false, $echo );
+	function emc_print_to( $post_id ) {
+		emc_print_meta( $post_id, 'to', false );
 	}
 
 endif;
@@ -199,11 +187,10 @@ if ( ! function_exists( 'emc_print_cc' ) ) :
 	 * Print the email "CC" recipients.
 	 *
 	 * @param  int  $post_id Post ID.
-	 * @param  bool $echo    Print or return the output. Default print.
-	 * @return mixed
+	 * @return void
 	 */
 	function emc_print_cc( $post_id, $echo = true ) {
-		return emc_print_meta( $post_id, 'cc', false, $echo );
+		emc_print_meta( $post_id, 'cc', false );
 	}
 
 endif;
@@ -230,11 +217,10 @@ if ( ! function_exists( 'emc_print_bcc' ) ) :
 	 * Print the email "BCC" recipients.
 	 *
 	 * @param  int  $post_id Post ID.
-	 * @param  bool $echo    Print or return the output. Default print.
-	 * @return mixed
+	 * @return void
 	 */
-	function emc_print_bcc( $post_id, $echo = true ) {
-		return emc_print_meta( $post_id, 'bcc', false, $echo );
+	function emc_print_bcc( $post_id ) {
+		emc_print_meta( $post_id, 'bcc', false );
 	}
 
 endif;
@@ -261,11 +247,10 @@ if ( ! function_exists( 'emc_print_reply_to' ) ) :
 	 * Print the email "Reply To" recipients.
 	 *
 	 * @param  int  $post_id Post ID.
-	 * @param  bool $echo    Print or return the output. Default print.
-	 * @return mixed
+	 * @return void
 	 */
-	function emc_print_reply_to( $post_id, $echo = true ) {
-		return emc_print_meta( $post_id, 'reply_to', false, $echo );
+	function emc_print_reply_to( $post_id ) {
+		emc_print_meta( $post_id, 'reply_to', false );
 	}
 
 endif;
@@ -293,10 +278,9 @@ if ( ! function_exists( 'emc_print_body' ) ) :
 	 * If the email content type is HTML - use an iframe.
 	 *
 	 * @param  int  $post_id Post ID.
-	 * @param  bool $echo    Print or return the output. Default print.
-	 * @return mixed
+	 * @return void
 	 */
-	function emc_print_body( $post_id, $echo = true ) {
+	function emc_print_body( $post_id ) {
 		$is_html = emc_is_html( $post_id );
 
 		if ( $is_html ) {
@@ -317,10 +301,6 @@ if ( ! function_exists( 'emc_print_body' ) ) :
 		}
 
 		$output = apply_filters( 'emc_print_body', $output, $post_id, $is_html );
-
-		if ( ! $echo ) {
-			return $output;
-		}
 
 		echo $output;
 	}

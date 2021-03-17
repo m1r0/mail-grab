@@ -56,7 +56,6 @@ class EMC_Email_Catcher {
 	protected function setup() {
 		$this->settings_api = new EMC_Settings_API();
 
-		// Actions.
 		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
 		add_action( 'emc_store_email',                                      array( $this, 'store_email' ),            10, 1 );
 		add_action( 'emc_prevent_email',                                    array( $this, 'prevent_email' ),          10, 1 );
@@ -67,11 +66,10 @@ class EMC_Email_Catcher {
 		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
 		add_action( 'add_meta_boxes_' . static::POST_TYPE,                  array( $this, 'register_meta_boxes' ),    10, 1 );
 		add_filter( 'plugin_action_links_' . EMC_PLUGIN_BASENAME,           array( $this, 'add_action_links' ),       10, 1 );
+		add_action( 'rest_api_init',                                        array( $this, 'register_rest_routes' ),   10, 0 );
 
 		add_filter( 'manage_' . static::POST_TYPE . '_posts_columns',       array( $this, 'add_columns' ),            10, 1 );
 		add_action( 'manage_' . static::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
-
-		add_action( 'rest_api_init',                                        array( $this, 'register_rest_routes' ),   10, 0 );
 	}
 
 	/**
@@ -80,14 +78,14 @@ class EMC_Email_Catcher {
 	 * @param  PHPMailer $phpmailer instance.
 	 * @return void
 	 */
-	public function catch_email( &$phpmailer ) {
+	public function catch_email( $phpmailer ) {
 		// Store the email.
 		do_action( 'emc_store_email', $phpmailer );
 
 		// Prevent the email sending if the option is enabled.
 		$prevent_email = $this->settings_api->get_option( 'prevent_email', 'emc_settings' ) === 'yes';
 		if ( $prevent_email ) {
-			do_action_ref_array( 'emc_prevent_email', array( &$phpmailer ) );
+			do_action( 'emc_prevent_email', $phpmailer );
 		}
 	}
 
@@ -137,7 +135,7 @@ class EMC_Email_Catcher {
 	 * @param  PHPMailer $phpmailer instance.
 	 * @return void
 	 */
-	public function prevent_email( &$phpmailer ) {
+	public function prevent_email( $phpmailer ) {
 		$phpmailer->clearAllRecipients();
 		$phpmailer->clearAttachments();
 		$phpmailer->clearCustomHeaders();

@@ -1,0 +1,13 @@
+{
+	"name": "m1r0/email-catcher",
+	"description": "A WordPress plugin that helps you catch all emails.",
+	"type": "wordpress-plugin",
+	"require": {
+		"composer/installers": "~1.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"m1r0\\EmailCatcher\\": "src/"
+		}
+	}
+}

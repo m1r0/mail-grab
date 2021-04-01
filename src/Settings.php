@@ -1,5 +1,7 @@
 <?php
 
+namespace m1r0\EmailCatcher;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -9,9 +11,10 @@ defined( 'ABSPATH' ) || exit;
  *
  * @author Tareq Hasan <tareq@weDevs.com>
  * @link https://tareq.co Tareq Hasan
- * @example example/oop-example.php How to use the class
+ *
+ * @package m1r0\EmailCatcher
  */
-class EMC_Settings_API {
+class Settings {
 
 	/**
 	 * settings sections array
@@ -26,15 +29,6 @@ class EMC_Settings_API {
 	 * @var array
 	 */
 	protected $settings_fields = array();
-
-	/**
-	 * Constructor.
-	 *
-	 * @return void
-	 */
-	public function __construct() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-	}
 
 	/**
 	 * Enqueue scripts and styles

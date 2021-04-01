@@ -1,17 +1,20 @@
 <?php
-/**
- * Email Catcher Class
- *
- * @class EMC_Email_Catcher
- * @package Email_Catcher
- */
+
+namespace m1r0\EmailCatcher;
+
+use PHPMailer\PHPMailer\PHPMailer;
+use WP_Post;
+use WP_REST_Request;
+use WP_REST_Server;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Main Email Catcher class
+ * Main email catcher class.
+ *
+ * @package m1r0\EmailCatcher
  */
-class EMC_Email_Catcher {
+class EmailCatcher {
 
 	/**
 	 * The email catcher post type.
@@ -21,21 +24,21 @@ class EMC_Email_Catcher {
 	/**
 	 * Settings API.
 	 *
-	 * @var EMC_Settings_API
+	 * @var Settings
 	 */
-	protected $settings_api;
+	protected $settings;
 
 	/**
 	 * Singleton implementation.
 	 *
-	 * @return EMC_Email_Catcher
+	 * @return EmailCatcher
 	 */
 	public static function instance() {
 		static $instance;
 
 		if ( ! is_a( $instance, __CLASS__ ) ) {
 			$instance = new self();
-			$instance->setup();
+			$instance->initialize();
 		}
 
 		return $instance;
@@ -46,16 +49,16 @@ class EMC_Email_Catcher {
 	 *
 	 * @return void
 	 */
-	protected function __construct() {}
+	public function __construct() {
+		$this->settings = new Settings();
+	}
 
 	/**
 	 * Register actions, filters, etc...
 	 *
 	 * @return void
 	 */
-	protected function setup() {
-		$this->settings_api = new EMC_Settings_API();
-
+	protected function initialize() {
 		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
 		add_action( 'emc_store_email',                                      array( $this, 'store_email' ),            10, 1 );
 		add_action( 'emc_prevent_email',                                    array( $this, 'prevent_email' ),          10, 1 );
@@ -75,15 +78,15 @@ class EMC_Email_Catcher {
 	/**
 	 * Intercept the email.
 	 *
-	 * @param  PHPMailer $phpmailer instance.
+	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer instance.
 	 * @return void
 	 */
-	public function catch_email( $phpmailer ) {
+	public function catch_email( PHPMailer $phpmailer ) {
 		// Store the email.
 		do_action( 'emc_store_email', $phpmailer );
 
 		// Prevent the email sending if the option is enabled.
-		$prevent_email = $this->settings_api->get_option( 'prevent_email', 'emc_settings' ) === 'yes';
+		$prevent_email = $this->settings->get_option( 'prevent_email', 'emc_settings' ) === 'yes';
 		if ( $prevent_email ) {
 			do_action( 'emc_prevent_email', $phpmailer );
 		}
@@ -92,10 +95,10 @@ class EMC_Email_Catcher {
 	/**
 	 * Store the email as a post.
 	 *
-	 * @param  PHPMailer $phpmailer instance.
-	 * @return int|WP_Error The post ID on success. The value 0 or WP_Error on failure.
+	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer instance.
+	 * @return int|\WP_Error The post ID on success. The value 0 or WP_Error on failure.
 	 */
-	public function store_email( $phpmailer ) {
+	public function store_email( PHPMailer $phpmailer ) {
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => $phpmailer->Subject,
@@ -132,10 +135,10 @@ class EMC_Email_Catcher {
 	/**
 	 * Prevent the email sending by clearing the mailer data.
 	 *
-	 * @param  PHPMailer $phpmailer instance.
+	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer instance.
 	 * @return void
 	 */
-	public function prevent_email( $phpmailer ) {
+	public function prevent_email( PHPMailer $phpmailer ) {
 		$phpmailer->clearAllRecipients();
 		$phpmailer->clearAttachments();
 		$phpmailer->clearCustomHeaders();
@@ -214,7 +217,7 @@ class EMC_Email_Catcher {
 	/**
 	 * Register post type meta boxes.
 	 *
-	 * @param  WP_Post $post Post object.
+	 * @param  \WP_Post $post Post object.
 	 * @return void
 	 */
 	public function register_meta_boxes( WP_Post $post ) {
@@ -229,7 +232,8 @@ class EMC_Email_Catcher {
 		);
 
 		foreach ( $meta_boxes as $type => $name ) {
-			$has_value = call_user_func( 'emc_get_' . $type, $post->ID );
+			$email_post = new EmailPost( $post->ID );
+			$has_value  = call_user_func( array( $email_post, "get_$type" ) );
 
 			if ( ! $has_value ) {
 				continue;
@@ -250,14 +254,16 @@ class EMC_Email_Catcher {
 	/**
 	 * Print the post type meta box content.
 	 *
-	 * @param  object $post    Post object.
-	 * @param  array  $metabox Metabox data.
+	 * @param  \WP_Post $post    Post object.
+	 * @param  array    $metabox Metabox data.
 	 * @return void
 	 */
-	public function print_meta_box( $post, $metabox ) {
+	public function print_meta_box( WP_Post $post, $metabox ) {
 		$type = $metabox['args']['type'];
 
-		call_user_func( 'emc_print_' . $type, $post->ID );
+		$email_post = new EmailPost( $post->ID );
+
+		call_user_func( array( $email_post, "print_$type" ) );
 	}
 
 	/**
@@ -274,6 +280,22 @@ class EMC_Email_Catcher {
 			'settings',
 			array( $this, 'settings_menu_page' )
 		);
+	}
+
+	/**
+	 * Render the settings menu page.
+	 *
+	 * @return void
+	 */
+	public function settings_menu_page() {
+		$this->settings->admin_enqueue_scripts();
+
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'Email Catcher Settings', 'email-catcher' ); ?></h1>
+			<?php $this->settings->show_forms(); ?>
+		</div>
+		<?php
 	}
 
 	/**
@@ -317,25 +339,11 @@ class EMC_Email_Catcher {
 		);
 
 		// Set the settings.
-		$this->settings_api->set_sections( $sections );
-		$this->settings_api->set_fields( $fields );
+		$this->settings->set_sections( $sections );
+		$this->settings->set_fields( $fields );
 
 		// Initialize settings.
-		$this->settings_api->admin_init();
-	}
-
-	/**
-	 * Render the settings menu page.
-	 *
-	 * @return void
-	 */
-	public function settings_menu_page() {
-		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Email Catcher Settings', 'email-catcher' ); ?></h1>
-			<?php $this->settings_api->show_forms(); ?>
-		</div>
-		<?php
+		$this->settings->admin_init();
 	}
 
 	/**
@@ -421,13 +429,15 @@ class EMC_Email_Catcher {
 	/**
 	 * Output the email body html.
 	 *
-	 * @param  WP_REST_Request $request Full details about the request.
+	 * @param  \WP_REST_Request $request Full details about the request.
 	 * @return void
 	 */
-	public function rest_get_email_body_html( $request ) {
+	public function rest_get_email_body_html( WP_REST_Request $request ) {
 		header( 'Content-Type: text/html' );
 
-		echo emc_get_body( $request['id'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$email_post = new EmailPost( $request['id'] );
+
+		echo $email_post->get_body(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// We're done.
 		die();
@@ -440,8 +450,8 @@ class EMC_Email_Catcher {
 	 * @return void
 	 */
 	public static function uninstall() {
-		$email_catcher = emc_email_catcher();
-		$uninstall     = $email_catcher->settings_api->get_option( 'uninstall', 'emc_settings' );
+		$email_catcher = static::instance();
+		$uninstall     = $email_catcher->settings->get_option( 'uninstall', 'emc_settings' );
 
 		// Check if uninstall is enabled and the user permissions.
 		if ( 'yes' !== $uninstall || ! current_user_can( 'activate_plugins' ) ) {
@@ -465,4 +475,4 @@ class EMC_Email_Catcher {
 		delete_site_option( 'emc_settings' );
 	}
 
-} // Email_Catcher
+}

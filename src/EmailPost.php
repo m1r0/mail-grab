@@ -229,4 +229,5 @@ class EmailPost {
 
 		return apply_filters( 'emc_is_html', $is_html, $this->post_id, $content_type );
 	}
+
 }

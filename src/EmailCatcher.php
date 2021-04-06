@@ -4,8 +4,6 @@ namespace m1r0\EmailCatcher;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use WP_Post;
-use WP_REST_Request;
-use WP_REST_Server;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,11 +20,18 @@ class EmailCatcher {
 	const POST_TYPE = 'emc_email';
 
 	/**
-	 * Settings API.
+	 * Settings instance.
 	 *
 	 * @var Settings
 	 */
 	protected $settings;
+
+	/**
+	 * API instance.
+	 *
+	 * @var Api
+	 */
+	protected $api;
 
 	/**
 	 * Singleton implementation.
@@ -50,6 +55,7 @@ class EmailCatcher {
 	 */
 	public function __construct() {
 		$this->settings = new Settings();
+		$this->api      = new Api();
 	}
 
 	/**
@@ -68,10 +74,11 @@ class EmailCatcher {
 		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
 		add_action( 'add_meta_boxes_' . static::POST_TYPE,                  array( $this, 'register_meta_boxes' ),    10, 1 );
 		add_filter( 'plugin_action_links_' . EMC_PLUGIN_BASENAME,           array( $this, 'add_action_links' ),       10, 1 );
-		add_action( 'rest_api_init',                                        array( $this, 'register_rest_routes' ),   10, 0 );
 
 		add_filter( 'manage_' . static::POST_TYPE . '_posts_columns',       array( $this, 'add_columns' ),            10, 1 );
 		add_action( 'manage_' . static::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
+
+		$this->api->initialize();
 	}
 
 	/**
@@ -397,49 +404,6 @@ class EmailCatcher {
 	 */
 	public function plugin_url( $file = '' ) {
 		return plugins_url( $file, dirname( __FILE__ ) );
-	}
-
-	/**
-	 * Register the rest routes.
-	 *
-	 * @return void
-	 */
-	public function register_rest_routes() {
-		register_rest_route(
-			'email-catcher/v1',
-			'/emails/(?P<id>\d+)/body',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'rest_get_email_body_html' ),
-				'args'                => array(
-					'id' => array(
-						'validate_callback' => function( $param ) {
-							return is_numeric( $param );
-						},
-					),
-				),
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-	}
-
-	/**
-	 * Output the email body html.
-	 *
-	 * @param  \WP_REST_Request $request Full details about the request.
-	 * @return void
-	 */
-	public function rest_get_email_body_html( WP_REST_Request $request ) {
-		header( 'Content-Type: text/html' );
-
-		$email_post = new EmailPost( $request['id'] );
-
-		echo $email_post->get_body(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-		// We're done.
-		die();
 	}
 
 	/**

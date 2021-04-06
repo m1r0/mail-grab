@@ -38,7 +38,6 @@ class EmailCatcher {
 
 		if ( ! is_a( $instance, __CLASS__ ) ) {
 			$instance = new self();
-			$instance->initialize();
 		}
 
 		return $instance;
@@ -58,7 +57,7 @@ class EmailCatcher {
 	 *
 	 * @return void
 	 */
-	protected function initialize() {
+	public function initialize() {
 		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
 		add_action( 'emc_store_email',                                      array( $this, 'store_email' ),            10, 1 );
 		add_action( 'emc_prevent_email',                                    array( $this, 'prevent_email' ),          10, 1 );
@@ -450,8 +449,8 @@ class EmailCatcher {
 	 * @return void
 	 */
 	public static function uninstall() {
-		$email_catcher = static::instance();
-		$uninstall     = $email_catcher->settings->get_option( 'uninstall', 'emc_settings' );
+		$settings  = new Settings();
+		$uninstall = $settings->get_option( 'uninstall', 'emc_settings' );
 
 		// Check if uninstall is enabled and the user permissions.
 		if ( 'yes' !== $uninstall || ! current_user_can( 'activate_plugins' ) ) {

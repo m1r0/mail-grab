@@ -22,12 +22,12 @@ if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 register_uninstall_hook( EMC_PLUGIN_BASENAME, array( 'm1r0\EmailCatcher\EmailCatcher', 'uninstall' ) );
 
 /**
- * Returns the main instance of the EmailCatcher.
+ * Begins plugin initialization.
  *
- * @return m1r0\EmailCatcher\EmailCatcher
+ * @return void
  */
-function emc_email_catcher() {
-	return m1r0\EmailCatcher\EmailCatcher::instance();
+function emc_run_email_catcher() {
+	m1r0\EmailCatcher\EmailCatcher::instance()->initialize();
 }
 
-emc_email_catcher();
+emc_run_email_catcher();

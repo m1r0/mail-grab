@@ -87,7 +87,7 @@ class EmailCatcher {
 	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer instance.
 	 * @return void
 	 */
-	public function catch_email( PHPMailer $phpmailer ) {
+	public function catch_email( $phpmailer ) {
 		// Store the email.
 		do_action( 'emc_store_email', $phpmailer );
 
@@ -103,7 +103,7 @@ class EmailCatcher {
 	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer instance.
 	 * @return int|\WP_Error The post ID on success. The value 0 or WP_Error on failure.
 	 */
-	public function store_email( PHPMailer $phpmailer ) {
+	public function store_email( $phpmailer ) {
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => $phpmailer->Subject,
@@ -143,7 +143,7 @@ class EmailCatcher {
 	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer instance.
 	 * @return void
 	 */
-	public function prevent_email( PHPMailer $phpmailer ) {
+	public function prevent_email( $phpmailer ) {
 		$phpmailer->clearAllRecipients();
 		$phpmailer->clearAttachments();
 		$phpmailer->clearCustomHeaders();

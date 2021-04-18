@@ -24,14 +24,14 @@ class EmailCatcher {
 	 *
 	 * @var Settings
 	 */
-	protected $settings;
+	public $settings;
 
 	/**
 	 * API instance.
 	 *
 	 * @var Api
 	 */
-	protected $api;
+	public $api;
 
 	/**
 	 * Singleton implementation.
@@ -92,8 +92,7 @@ class EmailCatcher {
 		do_action( 'emc_store_email', $phpmailer );
 
 		// Prevent the email sending if the option is enabled.
-		$prevent_email = $this->settings->get_option( 'prevent_email', 'emc_settings' ) === 'yes';
-		if ( $prevent_email ) {
+		if ( $this->get_setting( 'prevent_email' ) === 'yes' ) {
 			do_action( 'emc_prevent_email', $phpmailer );
 		}
 	}
@@ -353,6 +352,17 @@ class EmailCatcher {
 	}
 
 	/**
+	 * Get the value of a settings field.
+	 *
+	 * @param  string $setting Settings field name.
+	 * @param  string $default Default text if it's not found.
+	 * @return string
+	 */
+	public function get_setting( $setting, $default = '' ) {
+		return $this->settings->get_option( $setting, 'emc_settings', $default );
+	}
+
+	/**
 	 * Print the value for the columns.
 	 *
 	 * @param  string $column  The name of the column to display.
@@ -413,8 +423,7 @@ class EmailCatcher {
 	 * @return void
 	 */
 	public static function uninstall() {
-		$settings  = new Settings();
-		$uninstall = $settings->get_option( 'uninstall', 'emc_settings' );
+		$uninstall = static::instance()->get_setting( 'uninstall' );
 
 		// Check if uninstall is enabled and the user permissions.
 		if ( 'yes' !== $uninstall || ! current_user_can( 'activate_plugins' ) ) {

@@ -11,6 +11,7 @@
 	<!-- Files -->
 	<file>.</file>
 	<exclude-pattern>/vendor/</exclude-pattern>
+	<exclude-pattern>/tests/tmp/</exclude-pattern>
 
 	<!-- Rules -->
 	<!-- https://github.com/PHPCompatibility/PHPCompatibilityWP -->
@@ -24,7 +25,6 @@
 		<exclude name="Squiz.Commenting.FileComment.Missing"/>
 		<exclude name="WordPress.Files.FileName"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
-
 		<exclude-pattern>src/Settings.php</exclude-pattern>
 	</rule>
 
@@ -47,5 +47,9 @@
 		<properties>
 			<property name="blank_line_check" value="true"/>
 		</properties>
+	</rule>
+
+	<rule ref="Squiz.Commenting.FunctionComment.Missing">
+		<exclude-pattern>/tests/unit/</exclude-pattern>
 	</rule>
 </ruleset>

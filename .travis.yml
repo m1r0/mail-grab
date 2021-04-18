@@ -1,0 +1,36 @@
+language: php
+
+php:
+  - 7.4
+  - 7.3
+  - 7.2
+  - 5.6
+
+env:
+  - WP_VERSION=latest
+
+jobs:
+  fast_finish: true
+
+  include:
+    - php: 5.6
+      env: WP_VERSION=5.4
+    - php: 5.6
+      env: WP_VERSION=5.3
+    - php: 5.6
+      env: WP_VERSION=4.9
+    - php: 5.6
+      env: WP_VERSION=4.7
+    - php: 5.6
+      env: WP_VERSION=4.7 WP_MULTISITE=1
+
+before_script:
+  - mysql -e "create database IF NOT EXISTS email_catcher_tests;" -uroot
+  - bash tests/bin/install.sh email_catcher_tests root '' localhost $WP_VERSION
+
+script:
+  # Check all PHP files for syntax errors.
+  # The usage of bash + || exit 1 is to ensure xargs does not exit on first error.
+  - find src/ \( -name '*.php' \) | xargs -n1 bash -c 'php -lf $0 || exit 1'
+  # Run tests.
+  - composer phpunit

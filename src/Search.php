@@ -71,7 +71,7 @@ class Search {
 	 * @param string   $distinct The DISTINCT clause of the query.
 	 * @param WP_Query $query    The WP_Query instance.
 	 *
-	 * @return mixed|string
+	 * @return string
 	 */
 	public function posts_distinct( $distinct, WP_Query $query ) {
 		if ( $this->is_search_query( $query ) ) {

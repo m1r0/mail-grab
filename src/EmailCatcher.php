@@ -2,8 +2,8 @@
 
 namespace m1r0\EmailCatcher;
 
-use PHPMailer\PHPMailer\PHPMailer;
 use WP_Post;
+use WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -20,18 +20,25 @@ class EmailCatcher {
 	const POST_TYPE = 'emc_email';
 
 	/**
-	 * Settings instance.
-	 *
-	 * @var Settings
-	 */
-	public $settings;
-
-	/**
 	 * API instance.
 	 *
 	 * @var Api
 	 */
 	public $api;
+
+	/**
+	 * Search instance.
+	 *
+	 * @var Search
+	 */
+	public $search;
+
+	/**
+	 * Settings instance.
+	 *
+	 * @var Settings
+	 */
+	public $settings;
 
 	/**
 	 * Singleton implementation.
@@ -54,8 +61,9 @@ class EmailCatcher {
 	 * @return void
 	 */
 	public function __construct() {
-		$this->settings = new Settings();
 		$this->api      = new Api();
+		$this->search   = new Search();
+		$this->settings = new Settings();
 	}
 
 	/**
@@ -79,6 +87,7 @@ class EmailCatcher {
 		add_action( 'manage_' . static::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
 
 		$this->api->initialize();
+		$this->search->initialize();
 	}
 
 	/**

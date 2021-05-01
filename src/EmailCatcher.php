@@ -379,9 +379,9 @@ class EmailCatcher {
 	 * @return void
 	 */
 	public function print_column( $column, $post_id ) {
-		if ( function_exists( 'emc_print_' . $column ) ) {
-			call_user_func( 'emc_print_' . $column, $post_id );
-		}
+		$email_post = new EmailPost( $post_id );
+
+		$email_post->print_meta( $column );
 	}
 
 	/**

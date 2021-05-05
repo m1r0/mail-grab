@@ -23,7 +23,7 @@ require_once $mlgb_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function mlgb_manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/email-catcher.php';
+	require dirname( dirname( __FILE__ ) ) . '/mail-grab.php';
 }
 tests_add_filter( 'muplugins_loaded', 'mlgb_manually_load_plugin' );
 

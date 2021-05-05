@@ -3,7 +3,6 @@
 namespace m1r0\EmailCatcher;
 
 use WP_Post;
-use WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 

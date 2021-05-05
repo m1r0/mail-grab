@@ -1,6 +1,6 @@
 <?php
 
-namespace m1r0\EmailCatcher;
+namespace m1r0\MailGrab;
 
 use WP_REST_Server;
 use WP_REST_Request;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The REST API class.
  *
- * @package m1r0\EmailCatcher
+ * @package m1r0\MailGrab
  */
 class Api {
 
@@ -30,7 +30,7 @@ class Api {
 	 */
 	public function register_rest_routes() {
 		register_rest_route(
-			'email-catcher/v1',
+			'mail-grab/v1',
 			'/emails/(?P<id>\d+)/body',
 			array(
 				'methods'             => WP_REST_Server::READABLE,

@@ -1,4 +1,4 @@
-# Email Catcher Unit Tests
+# Mail Grab Unit Tests
 
 ## Initial Setup
 
@@ -8,7 +8,7 @@ Install WordPress and the WP Unit Test lib using the `install.sh` script. Change
 
 Sample usage:
 
-    $ tests/bin/install.sh email_catcher_tests root root localhost 4.8 false
+    $ tests/bin/install.sh mail_grab_tests root root localhost 4.8 false
 
 ## Running Tests
 

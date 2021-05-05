@@ -1,6 +1,6 @@
 <?php
 
-namespace m1r0\EmailCatcher;
+namespace m1r0\MailGrab;
 
 use WP_Query;
 
@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The admin search logic.
  *
- * @package m1r0\EmailCatcher
+ * @package m1r0\MailGrab
  */
 class Search {
 
@@ -92,9 +92,9 @@ class Search {
 		$is_search_query = is_admin()
 			&& $query->is_main_query()
 			&& $query->is_search()
-			&& $query->get( 'post_type' ) === EmailCatcher::POST_TYPE;
+			&& $query->get( 'post_type' ) === MailGrab::POST_TYPE;
 
-		return apply_filters( 'emc_is_search_query', $is_search_query, $query );
+		return apply_filters( 'mlgb_is_search_query', $is_search_query, $query );
 	}
 
 }

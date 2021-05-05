@@ -1,6 +1,6 @@
 {
-	"name": "m1r0/email-catcher",
-	"description": "A WordPress plugin that helps you catch all emails.",
+	"name": "m1r0/mail-grab",
+	"description": "Debug WordPress emails with ease. This plugin enables email logging and can prevent email sending.",
 	"type": "wordpress-plugin",
 	"require": {
 		"php": ">=5.6",
@@ -22,7 +22,7 @@
     },
 	"autoload": {
 		"psr-4": {
-			"m1r0\\EmailCatcher\\": "src/"
+			"m1r0\\MailGrab\\": "src/"
 		}
 	},
 	"scripts": {

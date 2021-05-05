@@ -31,7 +31,7 @@
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="emc"/>
+				<element value="mlgb"/>
 				<element value="m1r0"/>
 			</property>
 		</properties>
@@ -39,7 +39,7 @@
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<property name="text_domain" type="array" value="email-catcher"/>
+			<property name="text_domain" type="array" value="mail-grab"/>
 		</properties>
 	</rule>
 

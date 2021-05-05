@@ -1,6 +1,6 @@
 <?php
 
-namespace m1r0\EmailCatcher;
+namespace m1r0\MailGrab;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * @author Tareq Hasan <tareq@weDevs.com>
  * @link https://tareq.co Tareq Hasan
  *
- * @package m1r0\EmailCatcher
+ * @package m1r0\MailGrab
  */
 class Settings {
 

@@ -1,22 +1,22 @@
 <?php
 
-namespace m1r0\EmailCatcher;
+namespace m1r0\MailGrab;
 
 use WP_Post;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Main email catcher class.
+ * Main MailGrab class.
  *
- * @package m1r0\EmailCatcher
+ * @package m1r0\MailGrab
  */
-class EmailCatcher {
+class MailGrab {
 
 	/**
-	 * The email catcher post type.
+	 * The post type.
 	 */
-	const POST_TYPE = 'emc_email';
+	const POST_TYPE = 'mlgb_email';
 
 	/**
 	 * API instance.
@@ -42,7 +42,7 @@ class EmailCatcher {
 	/**
 	 * Singleton implementation.
 	 *
-	 * @return EmailCatcher
+	 * @return MailGrab
 	 */
 	public static function instance() {
 		static $instance;
@@ -72,15 +72,15 @@ class EmailCatcher {
 	 */
 	public function initialize() {
 		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
-		add_action( 'emc_store_email',                                      array( $this, 'store_email' ),            10, 1 );
-		add_action( 'emc_prevent_email',                                    array( $this, 'prevent_email' ),          10, 1 );
+		add_action( 'mlgb_store_email',                                     array( $this, 'store_email' ),            10, 1 );
+		add_action( 'mlgb_prevent_email',                                   array( $this, 'prevent_email' ),          10, 1 );
 
 		add_action( 'init',                                                 array( $this, 'register_post_type' ),     10, 0 );
 		add_action( 'admin_enqueue_scripts',                                array( $this, 'enqueue_scripts' ),        10, 1 );
 		add_action( 'admin_menu',                                           array( $this, 'register_settings_menu' ), 10, 0 );
 		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
 		add_action( 'add_meta_boxes_' . static::POST_TYPE,                  array( $this, 'register_meta_boxes' ),    10, 1 );
-		add_filter( 'plugin_action_links_' . EMC_PLUGIN_BASENAME,           array( $this, 'add_action_links' ),       10, 1 );
+		add_filter( 'plugin_action_links_' . MLGB_PLUGIN_BASENAME,          array( $this, 'add_action_links' ),       10, 1 );
 
 		add_filter( 'manage_' . static::POST_TYPE . '_posts_columns',       array( $this, 'add_columns' ),            10, 1 );
 		add_action( 'manage_' . static::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
@@ -97,11 +97,11 @@ class EmailCatcher {
 	 */
 	public function catch_email( $phpmailer ) {
 		// Store the email.
-		do_action( 'emc_store_email', $phpmailer );
+		do_action( 'mlgb_store_email', $phpmailer );
 
 		// Prevent the email sending if the option is enabled.
 		if ( $this->get_setting( 'prevent_email' ) === 'yes' ) {
-			do_action( 'emc_prevent_email', $phpmailer );
+			do_action( 'mlgb_prevent_email', $phpmailer );
 		}
 	}
 
@@ -125,8 +125,8 @@ class EmailCatcher {
 			return $post_id;
 		}
 
-		update_post_meta( $post_id, 'emc_content_type', $phpmailer->ContentType );
-		update_post_meta( $post_id, 'emc_from',         $phpmailer->addrFormat( array( $phpmailer->From, $phpmailer->FromName ) ) );
+		update_post_meta( $post_id, 'mlgb_content_type', $phpmailer->ContentType );
+		update_post_meta( $post_id, 'mlgb_from',         $phpmailer->addrFormat( array( $phpmailer->From, $phpmailer->FromName ) ) );
 
 		$email_recipients = array(
 			'to'       => $phpmailer->getToAddresses(),
@@ -138,13 +138,13 @@ class EmailCatcher {
 		// Store the email recipients.
 		foreach ( $email_recipients as $key => $recipients ) {
 			foreach ( $recipients as $recipient ) {
-				add_post_meta( $post_id, 'emc_' . $key, $phpmailer->addrFormat( $recipient ) );
+				add_post_meta( $post_id, 'mlgb_' . $key, $phpmailer->addrFormat( $recipient ) );
 			}
 		}
 
 		// Store the custom headers (if any).
 		foreach ( $phpmailer->getCustomHeaders() as $header ) {
-			add_post_meta( $post_id, 'emc_custom_headers', trim( $header[0] ) . ': ' . trim( $header[1] ) );
+			add_post_meta( $post_id, 'mlgb_custom_headers', trim( $header[0] ) . ': ' . trim( $header[1] ) );
 		}
 
 		return $post_id;
@@ -179,35 +179,35 @@ class EmailCatcher {
 
 		// Post edit screen scripts.
 		if ( 'post.php' === $hook ) {
-			wp_enqueue_script( 'emc-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ), '1.0.0', true );
-			wp_enqueue_style( 'emc-style', $this->plugin_url( 'css/style.css' ), array(), '1.0.0' );
+			wp_enqueue_script( 'mlgb-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ), '1.0.0', true );
+			wp_enqueue_style( 'mlgb-style', $this->plugin_url( 'css/style.css' ), array(), '1.0.0' );
 		}
 	}
 
 	/**
-	 * Register the email catcher post type.
+	 * Register the post type.
 	 *
 	 * @return void
 	 */
 	public function register_post_type() {
 		$labels = apply_filters(
-			'emc_post_type_labels',
+			'mlgb_post_type_labels',
 			array(
-				'name'               => _x( 'Emails',  'post type general',    'email-catcher' ),
-				'singular_name'      => _x( 'Email',   'post type singular',   'email-catcher' ),
-				'menu_name'          => _x( 'Email Catcher', 'admin menu',     'email-catcher' ),
-				'name_admin_bar'     => _x( 'Email',   'add new on admin bar', 'email-catcher' ),
-				'edit_item'          => __( 'View Email',                      'email-catcher' ),
-				'view_item'          => __( 'View Email',                      'email-catcher' ),
-				'all_items'          => __( 'All Emails',                      'email-catcher' ),
-				'search_items'       => __( 'Search Emails',                   'email-catcher' ),
-				'not_found'          => __( 'No emails found.',                'email-catcher' ),
-				'not_found_in_trash' => __( 'No emails found in Trash.',       'email-catcher' ),
+				'name'               => _x( 'Emails',    'post type general',    'mail-grab' ),
+				'singular_name'      => _x( 'Email',     'post type singular',   'mail-grab' ),
+				'menu_name'          => _x( 'Mail Grab', 'admin menu',           'mail-grab' ),
+				'name_admin_bar'     => _x( 'Email',     'add new on admin bar', 'mail-grab' ),
+				'edit_item'          => __( 'View Email',                        'mail-grab' ),
+				'view_item'          => __( 'View Email',                        'mail-grab' ),
+				'all_items'          => __( 'All Emails',                        'mail-grab' ),
+				'search_items'       => __( 'Search Emails',                     'mail-grab' ),
+				'not_found'          => __( 'No emails found.',                  'mail-grab' ),
+				'not_found_in_trash' => __( 'No emails found in Trash.',         'mail-grab' ),
 			)
 		);
 
 		$args = apply_filters(
-			'emc_post_type_args',
+			'mlgb_post_type_args',
 			array(
 				// Restrict to administrators only.
 				'capabilities' => array(
@@ -240,14 +240,14 @@ class EmailCatcher {
 	 */
 	public function register_meta_boxes( WP_Post $post ) {
 		$meta_boxes = array(
-			'subject'        => __( 'Subject',        'email-catcher' ),
-			'from'           => __( 'From',           'email-catcher' ),
-			'to'             => __( 'To',             'email-catcher' ),
-			'cc'             => __( 'CC',             'email-catcher' ),
-			'bcc'            => __( 'BCC',            'email-catcher' ),
-			'reply_to'       => __( 'Reply To',       'email-catcher' ),
-			'custom_headers' => __( 'Custom Headers', 'email-catcher' ),
-			'body'           => __( 'Body',           'email-catcher' ),
+			'subject'        => __( 'Subject',        'mail-grab' ),
+			'from'           => __( 'From',           'mail-grab' ),
+			'to'             => __( 'To',             'mail-grab' ),
+			'cc'             => __( 'CC',             'mail-grab' ),
+			'bcc'            => __( 'BCC',            'mail-grab' ),
+			'reply_to'       => __( 'Reply To',       'mail-grab' ),
+			'custom_headers' => __( 'Custom Headers', 'mail-grab' ),
+			'body'           => __( 'Body',           'mail-grab' ),
 		);
 
 		foreach ( $meta_boxes as $type => $name ) {
@@ -259,7 +259,7 @@ class EmailCatcher {
 			}
 
 			add_meta_box(
-				'emc-email-' . $type,
+				'mlgb-email-' . $type,
 				$name,
 				array( $this, 'print_meta_box' ),
 				static::POST_TYPE,
@@ -293,8 +293,8 @@ class EmailCatcher {
 	public function register_settings_menu() {
 		add_submenu_page(
 			'edit.php?post_type=' . static::POST_TYPE,
-			__( 'Email Catcher Settings', 'email-catcher' ),
-			__( 'Settings', 'email-catcher' ),
+			__( 'Mail Grab Settings', 'mail-grab' ),
+			__( 'Settings', 'mail-grab' ),
 			'manage_options',
 			'settings',
 			array( $this, 'settings_menu_page' )
@@ -311,7 +311,7 @@ class EmailCatcher {
 
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Email Catcher Settings', 'email-catcher' ); ?></h1>
+			<h1><?php esc_html_e( 'Mail Grab Settings', 'mail-grab' ); ?></h1>
 			<?php $this->settings->show_forms(); ?>
 		</div>
 		<?php
@@ -325,17 +325,17 @@ class EmailCatcher {
 	public function register_settings() {
 		$sections = array(
 			array(
-				'id'    => 'emc_settings',
+				'id'    => 'mlgb_settings',
 				'title' => '',
 			),
 		);
 
 		$fields = array(
-			'emc_settings' => array(
+			'mlgb_settings' => array(
 				array(
 					'name'    => 'prevent_email',
-					'label'   => __( 'Prevent email sending', 'email-catcher' ),
-					'desc'    => __( 'Prevent emails from being sent.', 'email-catcher' ),
+					'label'   => __( 'Prevent email sending', 'mail-grab' ),
+					'desc'    => __( 'Prevent emails from being sent.', 'mail-grab' ),
 					'type'    => 'select',
 					'default' => 'no',
 					'options' => array(
@@ -345,8 +345,8 @@ class EmailCatcher {
 				),
 				array(
 					'name'    => 'uninstall',
-					'label'   => __( 'Uninstall', 'email-catcher' ),
-					'desc'    => __( 'Remove all stored emails and settings when the plugin is removed.', 'email-catcher' ),
+					'label'   => __( 'Uninstall', 'mail-grab' ),
+					'desc'    => __( 'Remove all stored emails and settings when the plugin is removed.', 'mail-grab' ),
 					'type'    => 'select',
 					'default' => 'no',
 					'options' => array(
@@ -373,7 +373,7 @@ class EmailCatcher {
 	 * @return string
 	 */
 	public function get_setting( $setting, $default = '' ) {
-		return $this->settings->get_option( $setting, 'emc_settings', $default );
+		return $this->settings->get_option( $setting, 'mlgb_settings', $default );
 	}
 
 	/**
@@ -396,8 +396,8 @@ class EmailCatcher {
 	 * @return array $columns
 	 */
 	public function add_columns( $columns ) {
-		$columns['from'] = __( 'From', 'email-catcher' );
-		$columns['to']   = __( 'To',   'email-catcher' );
+		$columns['from'] = __( 'From', 'mail-grab' );
+		$columns['to']   = __( 'To',   'mail-grab' );
 
 		// Make the date column last.
 		$date_column = $columns['date'];
@@ -414,7 +414,7 @@ class EmailCatcher {
 	 * @return array $links
 	 */
 	public function add_action_links( $links ) {
-		$links['settings'] = '<a href="' . admin_url( 'edit.php?post_type=' . static::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings', 'email-catcher' ) . '</a>';
+		$links['settings'] = '<a href="' . admin_url( 'edit.php?post_type=' . static::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings', 'mail-grab' ) . '</a>';
 
 		return $links;
 	}
@@ -458,7 +458,7 @@ class EmailCatcher {
 		}
 
 		// Remove plugin options.
-		delete_site_option( 'emc_settings' );
+		delete_site_option( 'mlgb_settings' );
 	}
 
 }

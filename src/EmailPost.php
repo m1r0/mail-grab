@@ -1,13 +1,13 @@
 <?php
 
-namespace m1r0\EmailCatcher;
+namespace m1r0\MailGrab;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * The email post model class.
  *
- * @package m1r0\EmailCatcher
+ * @package m1r0\MailGrab
  */
 class EmailPost {
 
@@ -38,10 +38,10 @@ class EmailPost {
 	 *                field if $single is true.
 	 */
 	public function get_meta( $key, $single = false ) {
-		$value = get_post_meta( $this->post_id, 'emc_' . $key, $single );
-		$value = apply_filters( 'emc_get_' . $key, $value, $this->post_id );
+		$value = get_post_meta( $this->post_id, 'mlgb_' . $key, $single );
+		$value = apply_filters( 'mlgb_get_' . $key, $value, $this->post_id );
 
-		return apply_filters( 'emc_get_meta', $value, $this->post_id, $key );
+		return apply_filters( 'mlgb_get_meta', $value, $this->post_id, $key );
 	}
 
 	/**
@@ -62,8 +62,8 @@ class EmailPost {
 		}
 
 		$output = nl2br( esc_html( $output ) );
-		$output = apply_filters( 'emc_print_' . $key, $output, $this->post_id );
-		$output = apply_filters( 'emc_print_meta', $output, $this->post_id, $key );
+		$output = apply_filters( 'mlgb_print_' . $key, $output, $this->post_id );
+		$output = apply_filters( 'mlgb_print_meta', $output, $this->post_id, $key );
 
 		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
@@ -218,12 +218,12 @@ class EmailPost {
 			$iframe_url = add_query_arg(
 				'_wpnonce',
 				wp_create_nonce( 'wp_rest' ),
-				rest_url( "email-catcher/v1/emails/$this->post_id/body" )
+				rest_url( "mail-grab/v1/emails/$this->post_id/body" )
 			);
 
 			$output = '<iframe
 				src="' . $iframe_url . '"
-				class="emc-iframe"
+				class="mlgb-body-iframe"
 				sandbox="allow-popups-to-escape-sandbox allow-forms allow-pointer-lock allow-popups allow-presentation allow-orientation-lock allow-modals allow-same-origin"
 			></iframe>';
 		} else {
@@ -231,7 +231,7 @@ class EmailPost {
 			$output = nl2br( esc_html( $body ) );
 		}
 
-		$output = apply_filters( 'emc_print_body', $output, $this->post_id, $is_html );
+		$output = apply_filters( 'mlgb_print_body', $output, $this->post_id, $is_html );
 
 		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
@@ -245,7 +245,7 @@ class EmailPost {
 		$content_type = $this->get_meta( 'content_type', true );
 		$is_html      = 'text/html' === $content_type;
 
-		return apply_filters( 'emc_is_html', $is_html, $this->post_id, $content_type );
+		return apply_filters( 'mlgb_is_html', $is_html, $this->post_id, $content_type );
 	}
 
 }

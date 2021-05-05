@@ -142,6 +142,11 @@ class EmailCatcher {
 			}
 		}
 
+		// Store the custom headers (if any).
+		foreach ( $phpmailer->getCustomHeaders() as $header ) {
+			add_post_meta( $post_id, 'emc_custom_headers', trim( $header[0] ) . ': ' . trim( $header[1] ) );
+		}
+
 		return $post_id;
 	}
 
@@ -235,13 +240,14 @@ class EmailCatcher {
 	 */
 	public function register_meta_boxes( WP_Post $post ) {
 		$meta_boxes = array(
-			'subject'  => __( 'Subject',  'email-catcher' ),
-			'from'     => __( 'From',     'email-catcher' ),
-			'to'       => __( 'To',       'email-catcher' ),
-			'cc'       => __( 'CC',       'email-catcher' ),
-			'bcc'      => __( 'BCC',      'email-catcher' ),
-			'reply_to' => __( 'Reply To', 'email-catcher' ),
-			'body'     => __( 'Body',     'email-catcher' ),
+			'subject'        => __( 'Subject',        'email-catcher' ),
+			'from'           => __( 'From',           'email-catcher' ),
+			'to'             => __( 'To',             'email-catcher' ),
+			'cc'             => __( 'CC',             'email-catcher' ),
+			'bcc'            => __( 'BCC',            'email-catcher' ),
+			'reply_to'       => __( 'Reply To',       'email-catcher' ),
+			'custom_headers' => __( 'Custom Headers', 'email-catcher' ),
+			'body'           => __( 'Body',           'email-catcher' ),
 		);
 
 		foreach ( $meta_boxes as $type => $name ) {

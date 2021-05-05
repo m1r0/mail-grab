@@ -179,6 +179,24 @@ class EmailPost {
 	}
 
 	/**
+	 * Get the email custom headers.
+	 *
+	 * @return array
+	 */
+	public function get_custom_headers() {
+		return $this->get_meta( 'custom_headers' );
+	}
+
+	/**
+	 * Print the email custom headers.
+	 *
+	 * @return void
+	 */
+	public function print_custom_headers() {
+		$this->print_meta( 'custom_headers' );
+	}
+
+	/**
 	 * Get the email body.
 	 *
 	 * @return string

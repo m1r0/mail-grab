@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: Email Catcher
- * Description: Catch all emails before they are sent.
- * Author:      Miroslav Mitev
- * Version:     1.0
- * License:     GPL2+
+ * Description: Debug WordPress emails with ease. This plugin enables email logging and prevent email sending.
+ * Author:      m1r0
+ * Version:     1.0.0
+ * License:     GPLv3
  * Text Domain: email-catcher
  *
  * @package m1r0\EmailCatcher

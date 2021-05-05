@@ -5,7 +5,7 @@ namespace m1r0\EmailCatcher;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * weDevs Settings API wrapper class
+ * weDevs Settings API wrapper class.
  *
  * @version 1.3 (27-Sep-2016)
  *

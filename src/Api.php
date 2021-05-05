@@ -8,7 +8,7 @@ use WP_REST_Request;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The email post model class.
+ * The REST API class.
  *
  * @package m1r0\EmailCatcher
  */

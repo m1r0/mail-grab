@@ -414,9 +414,12 @@ class MailGrab {
 	 * @return array $links
 	 */
 	public function add_action_links( $links ) {
-		$links['settings'] = '<a href="' . admin_url( 'edit.php?post_type=' . static::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings', 'mail-grab' ) . '</a>';
-
-		return $links;
+		return array_merge(
+			array(
+				'settings' => '<a href="' . admin_url( 'edit.php?post_type=' . static::POST_TYPE . '&page=settings' ) . '">' . __( 'Settings', 'mail-grab' ) . '</a>',
+			),
+			$links
+		);
 	}
 
 	/**

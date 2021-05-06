@@ -211,7 +211,7 @@ class EmailPost {
 	 * @return void
 	 */
 	public function print_attachments() {
-		$attachments = $this->get_attachments();
+		$attachments       = $this->get_attachments();
 		$attachments_count = count( $attachments );
 
 		foreach ( $attachments as $i => $attachment_path ) {
@@ -219,7 +219,7 @@ class EmailPost {
 			$attachment_id = $relative_path ? attachment_url_to_postid( $relative_path ) : null;
 
 			if ( $attachment_id ) {
-				echo '<a href="' . wp_get_attachment_url( $attachment_id ) . '" target="_blank">' . esc_html( $attachment_path ) . '</a>';
+				echo '<a href="' . wp_get_attachment_url( $attachment_id ) . '" target="_blank">' . esc_html( $attachment_path ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			} else {
 				echo esc_html( $attachment_path );
 			}

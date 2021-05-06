@@ -197,6 +197,38 @@ class EmailPost {
 	}
 
 	/**
+	 * Get the email attachments.
+	 *
+	 * @return array
+	 */
+	public function get_attachments() {
+		return $this->get_meta( 'attachments' );
+	}
+
+	/**
+	 * Print the email attachments.
+	 *
+	 * @return void
+	 */
+	public function print_attachments() {
+		$attachments = $this->get_attachments();
+		$attachments_count = count( $attachments );
+
+		foreach ( $attachments as $i => $attachment_path ) {
+			$relative_path = _wp_relative_upload_path( $attachment_path );
+			$attachment_id = $relative_path ? attachment_url_to_postid( $relative_path ) : null;
+
+			if ( $attachment_id ) {
+				echo '<a href="' . wp_get_attachment_url( $attachment_id ) . '" target="_blank">' . esc_html( $attachment_path ) . '</a>';
+			} else {
+				echo esc_html( $attachment_path );
+			}
+
+			echo $i < $attachments_count - 1 ? '<br />' : '';
+		}
+	}
+
+	/**
 	 * Get the email body.
 	 *
 	 * @return string

@@ -147,6 +147,11 @@ class MailGrab {
 			add_post_meta( $post_id, 'mlgb_custom_headers', trim( $header[0] ) . ': ' . trim( $header[1] ) );
 		}
 
+		// Store attachments (if any).
+		foreach ( $phpmailer->getAttachments() as $attachment ) {
+			add_post_meta( $post_id, 'mlgb_attachments', wp_slash( $attachment[0] ) );
+		}
+
 		return $post_id;
 	}
 
@@ -247,6 +252,7 @@ class MailGrab {
 			'bcc'            => __( 'BCC',            'mail-grab' ),
 			'reply_to'       => __( 'Reply To',       'mail-grab' ),
 			'custom_headers' => __( 'Custom Headers', 'mail-grab' ),
+			'attachments'    => __( 'Attachments',    'mail-grab' ),
 			'body'           => __( 'Body',           'mail-grab' ),
 		);
 

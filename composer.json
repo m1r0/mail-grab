@@ -1,6 +1,6 @@
 {
 	"name": "m1r0/mail-grab",
-	"description": "Debug WordPress emails with ease. This plugin enables email logging and can prevent email sending.",
+	"description": "Debug WordPress emails with ease. Log all emails and disable email sending if needed.",
 	"type": "wordpress-plugin",
 	"require": {
 		"php": ">=5.6",

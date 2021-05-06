@@ -49,7 +49,6 @@ class Api {
 		);
 	}
 
-
 	/**
 	 * Output the email body html.
 	 *

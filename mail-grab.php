@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Mail Grab
- * Description: Debug WordPress emails with ease. This plugin enables email logging and can prevent email sending.
+ * Description: Debug WordPress emails with ease. Log all emails and disable email sending if needed.
  * Author:      m1r0
  * Version:     1.0.0
  * License:     GPLv3

@@ -29,8 +29,6 @@ jobs:
       env: WP_VERSION=4.7 WP_MULTISITE=1
 
 before_script:
-  # On PHP 8.0+ Mockery ^0.9 will fail.
-  - if [[ $TRAVIS_PHP_VERSION > '7.4' ]]; then composer require --dev --update-with-all-dependencies mockery/mockery:^1; fi
   - bash tests/bin/install.sh mail_grab_tests root '' localhost $WP_VERSION
 
 script:

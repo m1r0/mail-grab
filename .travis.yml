@@ -39,3 +39,5 @@ script:
   - find src/ \( -name '*.php' \) | xargs -n1 bash -c 'php -lf $0 || exit 1'
   # Run tests.
   - composer phpunit
+  # Run code sniffer.
+  - composer phpcs

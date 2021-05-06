@@ -19,7 +19,7 @@ if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 	require __DIR__ . '/vendor/autoload.php';
 }
 
-register_uninstall_hook( MLGB_PLUGIN_BASENAME, array( 'm1r0\MailGrab\MailGrab', 'uninstall' ) );
+register_uninstall_hook( MLGB_PLUGIN_BASENAME, array( 'm1r0\MailGrab\MailGrab', 'cleanup' ) );
 
 /**
  * Begins plugin initialization.

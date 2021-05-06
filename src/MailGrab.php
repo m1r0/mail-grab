@@ -344,8 +344,8 @@ class MailGrab {
 					),
 				),
 				array(
-					'name'    => 'uninstall',
-					'label'   => __( 'Uninstall', 'mail-grab' ),
+					'name'    => 'cleanup',
+					'label'   => __( 'Cleanup', 'mail-grab' ),
 					'desc'    => __( 'Remove all stored emails and settings when the plugin is removed.', 'mail-grab' ),
 					'type'    => 'select',
 					'default' => 'no',
@@ -431,16 +431,13 @@ class MailGrab {
 	}
 
 	/**
-	 * Removes all traces of the plugin if the "uninstall" option is enabled.
+	 * Removes all traces of the plugin if the "cleanup" option is enabled.
 	 *
 	 * @see    register_uninstall_hook() in the main file
 	 * @return void
 	 */
-	public static function uninstall() {
-		$uninstall = static::instance()->get_setting( 'uninstall' );
-
-		// Check if uninstall is enabled and the user permissions.
-		if ( 'yes' !== $uninstall || ! current_user_can( 'activate_plugins' ) ) {
+	public static function cleanup() {
+		if ( 'yes' !== static::instance()->get_setting( 'cleanup' ) ) {
 			return;
 		}
 

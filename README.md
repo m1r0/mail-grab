@@ -4,9 +4,10 @@
 
 A light weight WordPress plugin that helps with email debugging by providing the following features:
 
- * Logs all emails sent by WordPress using the `wp_mail` function
- * Shows an HTML preview of the logged emails
- * Allows you to stop the email sending
+* Log all emails sent by WordPress
+* Display an HTML preview of the logged emails
+* Disable email sending
+* Search by anything
 
 ### Requirements
 

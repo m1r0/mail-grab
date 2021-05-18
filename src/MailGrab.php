@@ -63,19 +63,15 @@ class MailGrab {
 	 * @return void
 	 */
 	public function initialize() {
-		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
-		add_action( 'mlgb_store_email',                                     array( $this, 'store_email' ),            10, 1 );
-		add_action( 'mlgb_prevent_email',                                   array( $this, 'prevent_email' ),          10, 1 );
-
 		add_action( 'init',                                                 array( $this, 'register_post_type' ),     10, 0 );
 		add_action( 'admin_enqueue_scripts',                                array( $this, 'enqueue_scripts' ),        10, 1 );
 		add_action( 'admin_menu',                                           array( $this, 'register_settings_menu' ), 10, 0 );
 		add_action( 'admin_init',                                           array( $this, 'register_settings' ),      10, 0 );
 		add_action( 'add_meta_boxes_' . static::POST_TYPE,                  array( $this, 'register_meta_boxes' ),    10, 1 );
 		add_filter( 'plugin_action_links_' . MLGB_PLUGIN_BASENAME,          array( $this, 'add_action_links' ),       10, 1 );
-
 		add_filter( 'manage_' . static::POST_TYPE . '_posts_columns',       array( $this, 'add_columns' ),            10, 1 );
 		add_action( 'manage_' . static::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
+		add_action( 'phpmailer_init',                                       array( $this, 'catch_email' ),          1000, 1 );
 
 		$this->search->initialize();
 	}
@@ -83,24 +79,32 @@ class MailGrab {
 	/**
 	 * Intercept the email.
 	 *
-	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer instance.
-	 * @return void
+	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer PHPMailer instance.
+	 * @return int The post ID on success. The value 0 on failure.
 	 */
 	public function catch_email( $phpmailer ) {
 		// Store the email.
-		do_action( 'mlgb_store_email', $phpmailer );
+		$post_id = $this->store_email( $phpmailer );
+
+		if ( 0 === $post_id ) {
+			return $post_id;
+		}
 
 		// Prevent the email sending if the option is enabled.
 		if ( $this->get_setting( 'prevent_email' ) === 'yes' ) {
-			do_action( 'mlgb_prevent_email', $phpmailer );
+			$this->prevent_email( $post_id, $phpmailer );
 		}
+
+		do_action( 'mlgb_email_caught', $post_id );
+
+		return $post_id;
 	}
 
 	/**
 	 * Store the email as a post.
 	 *
-	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer instance.
-	 * @return int|\WP_Error The post ID on success. The value 0 or WP_Error on failure.
+	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer PHPMailer instance.
+	 * @return int The post ID on success. The value 0 on failure.
 	 */
 	public function store_email( $phpmailer ) {
 		$post_id = wp_insert_post(
@@ -112,7 +116,7 @@ class MailGrab {
 			)
 		);
 
-		if ( is_wp_error( $post_id ) || 0 === $post_id ) {
+		if ( 0 === $post_id ) {
 			return $post_id;
 		}
 
@@ -143,20 +147,28 @@ class MailGrab {
 			add_post_meta( $post_id, 'mlgb_attachments', wp_slash( $attachment[0] ) );
 		}
 
+		do_action( 'mlgb_email_stored', $post_id );
+
 		return $post_id;
 	}
 
 	/**
 	 * Prevent the email sending by clearing the mailer data.
 	 *
-	 * @param  \PHPMailer\PHPMailer\PHPMailer $phpmailer instance.
+	 * @param int                            $post_id   The email post ID.
+	 * @param \PHPMailer\PHPMailer\PHPMailer $phpmailer PHPMailer instance.
+	 *
 	 * @return void
 	 */
-	public function prevent_email( $phpmailer ) {
+	public function prevent_email( $post_id, $phpmailer ) {
 		$phpmailer->clearAllRecipients();
 		$phpmailer->clearAttachments();
 		$phpmailer->clearCustomHeaders();
 		$phpmailer->clearReplyTos();
+
+		update_post_meta( $post_id, 'mlgb_prevented', true );
+
+		do_action( 'mlgb_email_prevented', $post_id );
 	}
 
 	/**

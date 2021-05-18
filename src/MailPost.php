@@ -270,4 +270,15 @@ class MailPost {
 		return apply_filters( 'mlgb_is_html', $is_html, $this->post_id, $content_type );
 	}
 
+	/**
+	 * Checks if the email is prevented from sending.
+	 *
+	 * @return bool
+	 */
+	public function is_prevented() {
+		$prevented = $this->get_meta( 'prevented', true );
+
+		return apply_filters( 'mlgb_is_prevented', $prevented, $this->post_id );
+	}
+
 }

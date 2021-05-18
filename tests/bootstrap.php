@@ -12,7 +12,7 @@ if ( ! $mlgb_tests_dir ) {
 }
 
 if ( ! file_exists( $mlgb_tests_dir . '/includes/functions.php' ) ) {
-	echo "Could not find $mlgb_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?" . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo "Could not find $mlgb_tests_dir/includes/functions.php, have you run tests/bin/install.sh ?" . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	exit( 1 );
 }
 

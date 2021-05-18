@@ -234,7 +234,7 @@ class MailPost {
 	 * @return string
 	 */
 	public function get_body() {
-		return get_the_content( null, false, $this->post_id );
+		return get_post_field( 'post_content', $this->post_id );
 	}
 
 	/**

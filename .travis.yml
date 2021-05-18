@@ -17,16 +17,16 @@ jobs:
   fast_finish: true
 
   include:
+    - php: 7.4
+      env: WP_VERSION=5.4
     - php: 5.6
       env: WP_VERSION=5.4
     - php: 5.6
       env: WP_VERSION=5.3
     - php: 5.6
-      env: WP_VERSION=4.9
+      env: WP_VERSION=4.3
     - php: 5.6
-      env: WP_VERSION=4.7
-    - php: 5.6
-      env: WP_VERSION=4.7 WP_MULTISITE=1
+      env: WP_VERSION=4.3 WP_MULTISITE=1
 
 before_script:
   - bash tests/bin/install.sh mail_grab_tests root '' localhost $WP_VERSION

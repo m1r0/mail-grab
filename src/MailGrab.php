@@ -19,13 +19,6 @@ class MailGrab {
 	const POST_TYPE = 'mlgb_email';
 
 	/**
-	 * API instance.
-	 *
-	 * @var Api
-	 */
-	public $api;
-
-	/**
 	 * Search instance.
 	 *
 	 * @var Search
@@ -60,7 +53,6 @@ class MailGrab {
 	 * @return void
 	 */
 	public function __construct() {
-		$this->api      = new Api();
 		$this->search   = new Search();
 		$this->settings = new Settings();
 	}
@@ -85,7 +77,6 @@ class MailGrab {
 		add_filter( 'manage_' . static::POST_TYPE . '_posts_columns',       array( $this, 'add_columns' ),            10, 1 );
 		add_action( 'manage_' . static::POST_TYPE . '_posts_custom_column', array( $this, 'print_column' ),           10, 2 );
 
-		$this->api->initialize();
 		$this->search->initialize();
 	}
 
@@ -184,7 +175,6 @@ class MailGrab {
 
 		// Post edit screen scripts.
 		if ( 'post.php' === $hook ) {
-			wp_enqueue_script( 'mlgb-functions', $this->plugin_url( 'js/functions.js' ), array( 'jquery' ), '1.0.0', true );
 			wp_enqueue_style( 'mlgb-style', $this->plugin_url( 'css/style.css' ), array(), '1.0.0' );
 		}
 	}
@@ -257,7 +247,7 @@ class MailGrab {
 		);
 
 		foreach ( $meta_boxes as $type => $name ) {
-			$email_post = new EmailPost( $post->ID );
+			$email_post = new MailPost( $post->ID );
 			$has_value  = call_user_func( array( $email_post, "get_$type" ) );
 
 			if ( ! $has_value ) {
@@ -286,7 +276,7 @@ class MailGrab {
 	public function print_meta_box( WP_Post $post, $metabox ) {
 		$type = $metabox['args']['type'];
 
-		$email_post = new EmailPost( $post->ID );
+		$email_post = new MailPost( $post->ID );
 
 		call_user_func( array( $email_post, "print_$type" ) );
 	}
@@ -390,7 +380,7 @@ class MailGrab {
 	 * @return void
 	 */
 	public function print_column( $column, $post_id ) {
-		$email_post = new EmailPost( $post_id );
+		$email_post = new MailPost( $post_id );
 
 		$email_post->print_meta( $column );
 	}

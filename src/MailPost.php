@@ -5,11 +5,11 @@ namespace m1r0\MailGrab;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The email post model class.
+ * The mail post model class.
  *
  * @package m1r0\MailGrab
  */
-class EmailPost {
+class MailPost {
 
 	/**
 	 * The post ID.
@@ -245,21 +245,11 @@ class EmailPost {
 	 */
 	public function print_body() {
 		$is_html = $this->is_html();
+		$body    = $this->get_body();
 
 		if ( $is_html ) {
-			$iframe_url = add_query_arg(
-				'_wpnonce',
-				wp_create_nonce( 'wp_rest' ),
-				rest_url( "mail-grab/v1/emails/$this->post_id/body" )
-			);
-
-			$output = '<iframe
-				src="' . $iframe_url . '"
-				class="mlgb-body-iframe"
-				sandbox="allow-popups-to-escape-sandbox allow-forms allow-pointer-lock allow-popups allow-presentation allow-orientation-lock allow-modals allow-same-origin"
-			></iframe>';
+			$output = ( new MailProcessor() )->parse( $body );
 		} else {
-			$body   = $this->get_body();
 			$output = nl2br( esc_html( $body ) );
 		}
 

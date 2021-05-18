@@ -246,19 +246,49 @@ class MailGrab {
 	 * @return void
 	 */
 	public function register_meta_boxes( WP_Post $post ) {
-		$meta_boxes = array(
-			'subject'        => __( 'Subject',        'mail-grab' ),
-			'from'           => __( 'From',           'mail-grab' ),
-			'to'             => __( 'To',             'mail-grab' ),
-			'cc'             => __( 'CC',             'mail-grab' ),
-			'bcc'            => __( 'BCC',            'mail-grab' ),
-			'reply_to'       => __( 'Reply To',       'mail-grab' ),
-			'custom_headers' => __( 'Custom Headers', 'mail-grab' ),
-			'attachments'    => __( 'Attachments',    'mail-grab' ),
-			'body'           => __( 'Body',           'mail-grab' ),
+		$meta_boxes = apply_filters(
+			'mlgb_meta_boxes',
+			array(
+				'subject'        => array(
+					'title'   => __( 'Subject', 'mail-grab' ),
+					'context' => 'side',
+				),
+				'from'           => array(
+					'title'   => __( 'From', 'mail-grab' ),
+					'context' => 'side',
+				),
+				'to'             => array(
+					'title'   => __( 'To', 'mail-grab' ),
+					'context' => 'side',
+				),
+				'cc'             => array(
+					'title'   => __( 'CC', 'mail-grab' ),
+					'context' => 'side',
+				),
+				'bcc'            => array(
+					'title'   => __( 'BCC', 'mail-grab' ),
+					'context' => 'side',
+				),
+				'reply_to'       => array(
+					'title'   => __( 'Reply To', 'mail-grab' ),
+					'context' => 'side',
+				),
+				'body'           => array(
+					'title'    => __( 'Body', 'mail-grab' ),
+					'priority' => 'high',
+				),
+				'attachments'    => array(
+					'title'    => __( 'Attachments', 'mail-grab' ),
+					'priority' => 'high',
+				),
+				'custom_headers' => array(
+					'title'    => __( 'Custom Headers', 'mail-grab' ),
+					'priority' => 'high',
+				),
+			)
 		);
 
-		foreach ( $meta_boxes as $type => $name ) {
+		foreach ( $meta_boxes as $type => $box ) {
 			$email_post = new MailPost( $post->ID );
 			$has_value  = call_user_func( array( $email_post, "get_$type" ) );
 
@@ -267,12 +297,12 @@ class MailGrab {
 			}
 
 			add_meta_box(
-				'mlgb-email-' . $type,
-				$name,
+				"mlgb-email-$type",
+				$box['title'],
 				array( $this, 'print_meta_box' ),
 				static::POST_TYPE,
-				'normal',
-				'default',
+				isset( $box['context'] ) ? $box['context'] : 'normal',
+				isset( $box['priority'] ) ? $box['priority'] : 'default',
 				array( 'type' => $type )
 			);
 		}

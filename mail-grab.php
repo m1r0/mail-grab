@@ -3,6 +3,7 @@
  * Plugin Name: Mail Grab
  * Description: Debug WordPress emails with ease. Log all emails and disable email sending if needed.
  * Author:      m1r0
+ * Author URI:  https://m1r0.dev
  * Version:     1.0.0
  * License:     GPLv3
  * Text Domain: mail-grab

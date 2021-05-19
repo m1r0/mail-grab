@@ -12,4 +12,4 @@ A light weight WordPress plugin that helps with email debugging by providing the
 ### Requirements
 
  * [PHP](http://php.net/) >= 5.6
- * [WordPress](https://wordpress.org/) >= 4.7
+ * [WordPress](https://wordpress.org/) >= 4.3
